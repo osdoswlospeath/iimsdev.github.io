@@ -90,24 +90,26 @@
     
     document.getElementById('year').textContent = new Date().getFullYear();
     
-    // URL ที่คุณได้จากการ Deploy (ใช้ตัวเดียวกันทั้ง Dev และ Prod แต่แยกตอนบันทึกได้)
+  // URL เดิมของคุณ
     const API_URL = "https://script.google.com/macros/s/AKfycbz8zohztNMZnGpYzQ-vSL6Uj6AZKP9npCsOUC3zSAYJnzkB3yy1OKar2yasMxGmVv_G/exec";
   
     let rawData = [];
   
-    // ดึงข้อมูลตอนโหลดหน้าโดยใช้ fetch
     async function loadData() {
       try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'getArea' })
-        });
+        // เปลี่ยนเป็นเรียก GET เพื่อความง่ายในการดึงข้อมูลเริ่มต้น
+        const response = await fetch(API_URL); 
         rawData = await response.json();
-        populateArea();
-        console.log("Data Loaded from Google Sheets");
+        
+        if (rawData.status === "error") {
+          alert("เกิดข้อผิดพลาดจาก Server: " + rawData.message);
+        } else {
+          populateArea();
+          console.log("Data Loaded:", rawData.length, "rows");
+        }
       } catch (err) {
-        console.error("Error loading data:", err);
-        alert("ไม่สามารถดึงข้อมูลพื้นที่ได้");
+        console.error("Error:", err);
+        alert("ไม่สามารถดึงข้อมูลพื้นที่ได้ กรุณาตรวจสอบการตั้งค่า Deployment");
       }
     }
   
@@ -217,4 +219,5 @@
   </script>
 </body>
 </html>
+
 
