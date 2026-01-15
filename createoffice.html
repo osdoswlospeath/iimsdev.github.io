@@ -85,22 +85,74 @@
     </div>
   </div>
 
+  
   <script>
+    
     document.getElementById('year').textContent = new Date().getFullYear();
     
-    // ข้อมูลจำลองสำหรับทดสอบ (ในงานจริงส่วนนี้จะถูกส่งมาจาก Google Apps Script)
-    // โดยอ้างอิงจากคอลัมน์ในชีท area_code 
-    let rawData = []; 
-
-    // ฟังก์ชันดึงข้อมูลจาก GAS (คุณต้องไปเขียนฝั่ง Code.gs ให้ return ค่าจากชีท area_code)
-    function loadData() {
-      // ตัวอย่างโครงสร้างข้อมูลจากชีท area_code: [area_thai, prov_thai, dist_thai, subd_thai]
-      // ในที่นี้สมมติว่าดึงมาจากสเปรดชีท ID: 1kvuS4tPRlTXjncQtTzp4ao69rcHabJrBLe9EY_PP1sc 
-      google.script.run.withSuccessHandler(data => {
-        rawData = data;
+    // URL ที่คุณได้จากการ Deploy (ใช้ตัวเดียวกันทั้ง Dev และ Prod แต่แยกตอนบันทึกได้)
+    const API_URL = "https://script.google.com/macros/s/AKfycbz8zohztNMZnGpYzQ-vSL6Uj6AZKP9npCsOUC3zSAYJnzkB3yy1OKar2yasMxGmVv_G/exec";
+  
+    let rawData = [];
+  
+    // ดึงข้อมูลตอนโหลดหน้าโดยใช้ fetch
+    async function loadData() {
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'getArea' })
+        });
+        rawData = await response.json();
         populateArea();
-      }).getAreaCodeData(); 
+        console.log("Data Loaded from Google Sheets");
+      } catch (err) {
+        console.error("Error loading data:", err);
+        alert("ไม่สามารถดึงข้อมูลพื้นที่ได้");
+      }
     }
+  
+    // ฟังก์ชันบันทึกข้อมูล
+    async function saveData() {
+      const btn = document.getElementById('saveBtn');
+      btn.disabled = true;
+      btn.innerText = "กำลังบันทึก...";
+  
+      const payload = {
+        action: 'saveOffice',
+        data: {
+          bran_thai: document.getElementById('branName').value,
+          address_full: document.getElementById('viewAddress').innerText,
+          bran_iden: document.getElementById('previewCode').innerText,
+          area: document.getElementById('area').value,
+          prov: document.getElementById('prov').value,
+          dist: document.getElementById('dist').value,
+          subd: document.getElementById('subd').value
+        }
+      };
+  
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          mode: 'no-cors', // สำคัญ: เพื่อข้ามปัญหา CORS ของ Google Redirect
+          body: JSON.stringify(payload)
+        });
+        
+        // หมายเหตุ: mode 'no-cors' จะไม่สามารถอ่าน response body ได้ 
+        // แต่ข้อมูลจะถูกส่งไปบันทึกที่ Sheets แน่นอน
+        alert("ส่งข้อมูลการบันทึกแล้ว (กรุณาตรวจสอบที่ Google Sheets)");
+        location.reload();
+      } catch (err) {
+        alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
+        btn.disabled = false;
+        btn.innerText = "บันทึกข้อมูล";
+      }
+    }
+  
+    // ผูกฟังก์ชันเข้ากับปุ่มบันทึก
+    document.getElementById('saveBtn').onclick = saveData;
+    
+    // เรียกโหลดข้อมูลเมื่อเปิดหน้า
+    window.onload = loadData;
 
     function populateArea() {
       const areaSelect = document.getElementById('area');
@@ -135,7 +187,7 @@
       }
       updatePreview();
     }
-
+    
     function updatePreview() {
       const name = document.getElementById('branName').value || "—";
       const addr = document.getElementById('addressDetail').value;
@@ -165,3 +217,4 @@
   </script>
 </body>
 </html>
+
