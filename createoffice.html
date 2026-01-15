@@ -106,21 +106,6 @@
       }
     };
   
-    const API_URL = "https://script.google.com/macros/s/AKfycbz8zohztNMZnGpYzQ-vSL6Uj6AZKP9npCsOUC3zSAYJnzkB3yy1OKar2yasMxGmVv_G/exec";
-    let rawData = [];
-  
-    async function loadData() {
-      console.log("Fetching from:", API_URL);
-      try {
-        const response = await fetch(API_URL);
-        rawData = await response.json();
-        console.log("Success! Data length:", rawData.length);
-        populateArea();
-      } catch (err) {
-        console.error("Fetch error:", err);
-      }
-    }
-    
     document.getElementById('year').textContent = new Date().getFullYear();
     
   // URL เดิมของคุณ
@@ -253,6 +238,7 @@
   </script>
 </body>
 </html>
+
 
 
 
