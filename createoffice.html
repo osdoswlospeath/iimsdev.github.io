@@ -95,23 +95,26 @@
   
     let rawData = [];
   
-    async function loadData() {
-      try {
-        // เปลี่ยนเป็นเรียก GET เพื่อความง่ายในการดึงข้อมูลเริ่มต้น
-        const response = await fetch(API_URL); 
-        rawData = await response.json();
-        
-        if (rawData.status === "error") {
-          alert("เกิดข้อผิดพลาดจาก Server: " + rawData.message);
-        } else {
-          populateArea();
-          console.log("Data Loaded:", rawData.length, "rows");
-        }
-      } catch (err) {
-        console.error("Error:", err);
-        alert("ไม่สามารถดึงข้อมูลพื้นที่ได้ กรุณาตรวจสอบการตั้งค่า Deployment");
+async function loadData() {
+    console.log("Starting to load data..."); // เช็คใน Console ว่าฟังก์ชันทำงานไหม
+    try {
+      // เรียก API แบบเรียบง่ายที่สุด (Default คือ GET)
+      const response = await fetch(API_URL); 
+      
+      if (!response.ok) throw new Error('Network response was not ok');
+      
+      rawData = await response.json();
+      console.log("Data received:", rawData); // ดูว่าข้อมูลมาเป็น Array หรือไม่
+
+      if (rawData.length > 0) {
+        populateArea();
+      } else {
+        console.warn("No data found in sheet 'area_code'");
       }
+    } catch (err) {
+      console.error("Error loading data:", err);
     }
+  }
   
     // ฟังก์ชันบันทึกข้อมูล
     async function saveData() {
@@ -219,5 +222,6 @@
   </script>
 </body>
 </html>
+
 
 
