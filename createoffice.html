@@ -5,7 +5,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>สร้างรหัส bran_iden | IIMS</title>
-  
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,9 +12,7 @@
   <div class="header-wrap">
     <div class="header">
       <div class="brand">
-        <div class="logo">
-          <span style="font-weight:700;color:var(--purple);">LOGO</span>
-        </div>
+        <div class="logo"><span style="font-weight:700;color:var(--purple);">LOGO</span></div>
         <div>
           <h1 class="title-th">ระบบสารสนเทศการบริหารข้อมูลการประกันภัย <span style="color:var(--gold); font-size: 16px;">(DEV MODE)</span> </h1>
           <div class="title-en">Insurance Information Management System : IIMS</div>
@@ -34,66 +31,137 @@
 
   <div class="container">
     <div class="card">
-      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-        <h2 style="margin:0;">สร้างรหัสสำนักงาน (bran_iden)</h2>
+      <h2>สร้างรหัสสำนักงาน (bran_iden)</h2>
+      <p class="notice">ระบุชื่อและที่ตั้งสำนักงาน ระบบจะดึงข้อมูลจากชีท <code>area_code</code> และเจนเนอเรตข้อมูลให้อัตโนมัติ</p>
+
+      <div class="form-row">
+        <label>ชื่อสำนักงาน (bran_thai)</label>
+        <input type="text" id="branName" placeholder="เช่น สำนักงานประกันภัยจังหวัดเชียงใหม่" oninput="updatePreview()" />
       </div>
 
-      <p class="notice">
-        ระบุชื่อสำนักงานและเลือกที่ตั้งให้ครบถ้วน ระบบจะเจนเนอเรตรหัส 5 หลักให้อัตโนมัติ
-      </p>
-
-      <div class="form-row" style="margin-bottom: 20px;">
-        <label>ชื่อสำนักงาน (bran_thai)</label>
-        <input type="text" id="branName" placeholder="เช่น สำนักงานประกันภัยจังหวัด..." />
+      <div class="form-row">
+        <label>ที่อยู่ (บ้านเลขที่ / หมู่ / อาคาร / ถนน)</label>
+        <input type="text" id="addressDetail" placeholder="เช่น 123/4 หมู่ 5 ถ.ซุปเปอร์ไฮเวย์" oninput="updatePreview()" />
       </div>
 
       <div class="grid">
         <div class="form-row">
           <label>พื้นที่ (area_thai)</label>
-          <select id="area"><option value="">— เลือกพื้นที่ —</option></select>
+          <select id="area" onchange="filterDropdown('prov')"><option value="">— เลือกพื้นที่ —</option></select>
         </div>
         <div class="form-row">
           <label>จังหวัด (prov_thai)</label>
-          <select id="prov" disabled><option value="">— เลือกจังหวัด —</option></select>
+          <select id="prov" disabled onchange="filterDropdown('dist')"><option value="">— เลือกจังหวัด —</option></select>
         </div>
         <div class="form-row">
           <label>อำเภอ/เขต (dist_thai)</label>
-          <select id="dist" disabled><option value="">— เลือกอำเภอ —</option></select>
+          <select id="dist" disabled onchange="filterDropdown('subd')"><option value="">— เลือกอำเภอ —</option></select>
         </div>
         <div class="form-row">
           <label>ตำบล/แขวง (subd_thai)</label>
-          <select id="subd" disabled><option value="">— เลือกตำบล —</option></select>
+          <select id="subd" disabled onchange="updatePreview()"><option value="">— เลือกตำบล —</option></select>
         </div>
       </div>
 
-      <div class="preview">
-        <div style="font-weight:600; color:var(--purple);">รหัสที่ระบบจะสร้าง:</div>
-        <div id="previewCode" class="badge">—</div>
-        <div id="previewText" style="font-size: 0.9rem; color: var(--muted);"></div>
+      <div class="preview" style="text-align: left; padding: 20px;">
+        <div style="margin-bottom: 15px;">
+          <strong style="color:var(--purple);">1. ชื่อสำนักงาน:</strong>
+          <div id="viewName" style="font-size: 1.1rem; margin-top: 5px;">—</div>
+        </div>
+        <div style="margin-bottom: 15px;">
+          <strong style="color:var(--purple);">2. รหัสสำนักงาน (bran_iden):</strong><br>
+          <div id="previewCode" class="badge">—</div>
+        </div>
+        <div>
+          <strong style="color:var(--purple);">3. ที่อยู่ฉบับเต็ม:</strong>
+          <div id="viewAddress" style="font-size: 0.95rem; margin-top: 5px; line-height: 1.6;">—</div>
+        </div>
       </div>
 
       <div class="actions" style="justify-content: center; margin-top: 24px;">
-        <button id="resetBtn" class="btn">ล้างข้อมูล</button>
-        <button id="saveBtn" class="btn primary" disabled>บันทึกข้อมูลลงฐานข้อมูล</button>
+        <button onclick="location.reload()" class="btn">ล้างข้อมูล</button>
+        <button id="saveBtn" class="btn primary" disabled>บันทึกข้อมูล</button>
       </div>
-
-      <div id="status" class="status"></div>
-    </div>
-
-    <div class="footer">
-      © <span id="year"></span> IIMS — แผนกการประกันภัย กองสนับสนุนงานองค์กร
     </div>
   </div>
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
-
-    // ส่วนของ Logic การดึงข้อมูลพื้นที่และการสร้างรหัส 
-    // คุณสามารถนำโค้ด JavaScript เดิม (จากบรรทัด 164 เป็นต้นไปในไฟล์เก่า) มาวางต่อตรงนี้ได้เลยครับ
     
-    // ตั้งค่า Environment
-    const IS_DEV = true; // เปลี่ยนเป็น false เมื่อขึ้น Production
-    console.log("Create Office Page Loaded | Dev Mode:", IS_DEV);
+    // ข้อมูลจำลองสำหรับทดสอบ (ในงานจริงส่วนนี้จะถูกส่งมาจาก Google Apps Script)
+    // โดยอ้างอิงจากคอลัมน์ในชีท area_code 
+    let rawData = []; 
+
+    // ฟังก์ชันดึงข้อมูลจาก GAS (คุณต้องไปเขียนฝั่ง Code.gs ให้ return ค่าจากชีท area_code)
+    function loadData() {
+      // ตัวอย่างโครงสร้างข้อมูลจากชีท area_code: [area_thai, prov_thai, dist_thai, subd_thai]
+      // ในที่นี้สมมติว่าดึงมาจากสเปรดชีท ID: 1kvuS4tPRlTXjncQtTzp4ao69rcHabJrBLe9EY_PP1sc 
+      google.script.run.withSuccessHandler(data => {
+        rawData = data;
+        populateArea();
+      }).getAreaCodeData(); 
+    }
+
+    function populateArea() {
+      const areaSelect = document.getElementById('area');
+      const areas = [...new Set(rawData.map(item => item.area_thai))];
+      areas.forEach(a => areaSelect.add(new Option(a, a)));
+    }
+
+    function filterDropdown(level) {
+      const areaVal = document.getElementById('area').value;
+      const provVal = document.getElementById('prov').value;
+      const distVal = document.getElementById('dist').value;
+      
+      const provSelect = document.getElementById('prov');
+      const distSelect = document.getElementById('dist');
+      const subdSelect = document.getElementById('subd');
+
+      if(level === 'prov') {
+        provSelect.innerHTML = '<option value="">— เลือกจังหวัด —</option>';
+        provSelect.disabled = false;
+        const filtered = rawData.filter(i => i.area_thai === areaVal);
+        [...new Set(filtered.map(i => i.prov_thai))].forEach(p => provSelect.add(new Option(p, p)));
+      } else if(level === 'dist') {
+        distSelect.innerHTML = '<option value="">— เลือกอำเภอ —</option>';
+        distSelect.disabled = false;
+        const filtered = rawData.filter(i => i.prov_thai === provVal);
+        [...new Set(filtered.map(i => i.dist_thai))].forEach(d => distSelect.add(new Option(d, d)));
+      } else if(level === 'subd') {
+        subdSelect.innerHTML = '<option value="">— เลือกตำบล —</option>';
+        subdSelect.disabled = false;
+        const filtered = rawData.filter(i => i.dist_thai === distVal);
+        [...new Set(filtered.map(i => i.subd_thai))].forEach(s => subdSelect.add(new Option(s, s)));
+      }
+      updatePreview();
+    }
+
+    function updatePreview() {
+      const name = document.getElementById('branName').value || "—";
+      const addr = document.getElementById('addressDetail').value;
+      const area = document.getElementById('area').value;
+      const prov = document.getElementById('prov').value;
+      const dist = document.getElementById('dist').value;
+      const subd = document.getElementById('subd').value;
+
+      document.getElementById('viewName').innerText = name;
+      
+      // รวมที่อยู่แบบเต็ม
+      let fullAddr = addr ? addr + " " : "";
+      if(subd) fullAddr += "ต." + subd + " ";
+      if(dist) fullAddr += "อ." + dist + " ";
+      if(prov) fullAddr += "จ." + prov + " ";
+      document.getElementById('viewAddress').innerText = fullAddr || "—";
+
+      // จำลองการสร้างรหัส (รหัสพื้นที่จากชีท)
+      if(subd) {
+        document.getElementById('previewCode').innerText = "B" + Math.floor(Math.random() * 9000 + 1000);
+        document.getElementById('saveBtn').disabled = false;
+      }
+    }
+
+    // เรียกโหลดข้อมูลเมื่อเปิดหน้า
+    window.onload = loadData;
   </script>
 </body>
 </html>
