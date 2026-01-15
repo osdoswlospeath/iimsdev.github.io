@@ -68,12 +68,7 @@
 
 
   <script>
-    fetch('header.html')
-    .then(response => response.text())
-    .then(data => {
-      document.getElementById('header-placeholder').innerHTML = data;
-    });
-    
+     
     // ใส่ปีปัจจุบันใน footer
     document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -91,5 +86,6 @@
 
 </body>
 </html>
+
 
 
