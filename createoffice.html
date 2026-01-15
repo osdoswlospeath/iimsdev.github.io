@@ -82,11 +82,44 @@
         <button onclick="location.reload()" class="btn">ล้างข้อมูล</button>
         <button id="saveBtn" class="btn primary" disabled>บันทึกข้อมูล</button>
       </div>
+
+      <div class="footer">
+      © <span id="year"></span> IIMS — แผนกการประกันภัย กองสนับสนุนงานองค์กร
+      </div>
     </div>
   </div>
 
   
   <script>
+
+      // 1. ย้ายมาไว้บนสุด เพื่อให้รันก่อนเพื่อน
+    window.onload = function() {
+      try {
+        // ใส่ปีปัจจุบัน (กันเหนียวถ้าหา id year ไม่เจอ จะได้ไม่พังทั้งระบบ)
+        const yearEl = document.getElementById('year');
+        if (yearEl) yearEl.textContent = new Date().getFullYear();
+        
+        // เรียกโหลดข้อมูล
+        loadData();
+      } catch (e) {
+        console.error("Error in onload:", e);
+      }
+    };
+  
+    const API_URL = "https://script.google.com/macros/s/AKfycbz8zohztNMZnGpYzQ-vSL6Uj6AZKP9npCsOUC3zSAYJnzkB3yy1OKar2yasMxGmVv_G/exec";
+    let rawData = [];
+  
+    async function loadData() {
+      console.log("Fetching from:", API_URL);
+      try {
+        const response = await fetch(API_URL);
+        rawData = await response.json();
+        console.log("Success! Data length:", rawData.length);
+        populateArea();
+      } catch (err) {
+        console.error("Fetch error:", err);
+      }
+    }
     
     document.getElementById('year').textContent = new Date().getFullYear();
     
@@ -95,7 +128,7 @@
   
     let rawData = [];
   
-async function loadData() {
+    async function loadData() {
     console.log("Starting to load data..."); // เช็คใน Console ว่าฟังก์ชันทำงานไหม
     try {
       // เรียก API แบบเรียบง่ายที่สุด (Default คือ GET)
@@ -217,11 +250,10 @@ async function loadData() {
       }
     }
 
-    // เรียกโหลดข้อมูลเมื่อเปิดหน้า
-    window.onload = loadData;
   </script>
 </body>
 </html>
+
 
 
 
