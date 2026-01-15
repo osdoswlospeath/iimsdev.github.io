@@ -1,23 +1,40 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
-
   <base target="_top">
   <meta charset="utf-8" />
-
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>IIMS | ระบบสารสนเทศการบริหารข้อมูลการประกันภัย (DEV MODE) </title>
+  <title>IIMS | ระบบสารสนเทศการบริหารข้อมูลการประกันภัย</title>
   
   <link rel="stylesheet" href="style.css">
-  <!-- Header&Navigation -->
-  <div id="header-placeholder"></div>
-  
 </head>
-  
 <body>
-  
-  <!-- Main Content -->
+
+  <div class="header-wrap">
+    <div class="header">
+      <div class="brand">
+        <div class="logo" title="โลโก้องค์กร">
+          <span style="font-weight:700;color:var(--purple);">LOGO</span>
+        </div>
+        <div>
+          <h1 class="title-th">ระบบสารสนเทศการบริหารข้อมูลการประกันภัย</h1>
+          <div class="title-en">Insurance Information Management System : IIMS</div>
+          <div class="subtitle">แผนกการประกันภัย กองสนับสนุนงานองค์กร</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <div class="nav-inner">
+      <a class="link active" href="index.html">หน้าแรก</a>
+      <a class="link" href="createoffice.html">สร้างรหัสสำนักงาน (bran_iden)</a>
+      <span class="link" onclick="navigate('manage')">จัดการข้อมูล</span>
+      <span class="link" onclick="navigate('reports')">รายงาน</span>
+      <span class="link" onclick="navigate('help')">คู่มือการใช้งาน</span>
+    </div>
+  </div>
+
   <div class="container">
     <div class="card">
       <h2>ยินดีต้อนรับเข้าสู่ระบบ IIMS</h2>
@@ -31,8 +48,8 @@
           <h3>สร้างรหัสสำนักงาน</h3>
           <p>เลือกพื้นที่ → จังหวัด → อำเภอ → ตำบล และระบุชื่อสำนักงาน ระบบจะสร้างรหัส <code>bran_iden</code> และบันทึกลงชีท <code>bran_code</code>.</p>
           <div class="actions">
-            <a class="btn primary" href="createoffice.html">เริ่มต้นใช้งาน</a>
-            <span class="btn" onclick="navigate('help')">ดูวิธีใช้</span>
+            <a class="btn-primary" href="createoffice.html">เริ่มต้นใช้งาน</a>
+            <button class="btn-secondary" onclick="navigate('help')">ดูวิธีใช้</button>
           </div>
         </div>
 
@@ -40,7 +57,7 @@
           <h3>จัดการข้อมูล</h3>
           <p>หน้าเครื่องมือจัดการข้อมูล (แก้ไข/ค้นหา/ลบ) — สามารถเพิ่มภายหลังได้.</p>
           <div class="actions">
-            <span class="btn" onclick="navigate('manage')">เปิดหน้า</span>
+            <button class="btn-secondary" onclick="navigate('manage')">เปิดหน้า</button>
           </div>
         </div>
 
@@ -48,7 +65,7 @@
           <h3>รายงาน</h3>
           <p>รวมรายงานสรุปข้อมูลการประกันภัยและสาขา — เพิ่มในเวอร์ชันถัดไป.</p>
           <div class="actions">
-            <span class="btn" onclick="navigate('reports')">ดูรายงาน</span>
+            <button class="btn-secondary" onclick="navigate('reports')">ดูรายงาน</button>
           </div>
         </div>
 
@@ -56,7 +73,7 @@
           <h3>คู่มือการใช้งาน</h3>
           <p>คำแนะนำการใช้งานระบบ IIMS และขั้นตอนการบันทึกข้อมูลให้ถูกต้อง.</p>
           <div class="actions">
-            <span class="btn" onclick="navigate('help')">เปิดคู่มือ</span>
+            <button class="btn-secondary" onclick="navigate('help')">เปิดคู่มือ</button>
           </div>
         </div>
       </div>
@@ -67,28 +84,25 @@
     </div>
   </div>
 
-
   <script>
-     
-    // ใส่ปีปัจจุบันใน footer
+    // 1. แสดงปีปัจจุบันอัตโนมัติที่ Footer
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const href = '?page=createoffice'; // ใช้ relative ล้วน ๆ
-      const linkMenu = document.getElementById('linkCreateOffice');
-      if (linkMenu) linkMenu.href = href;
+    // 2. ฟังก์ชันสำหรับการเปลี่ยนหน้า (สำหรับปุ่มที่ยังไม่ได้ทำหน้าไฟล์แยก)
+    function navigate(page) {
+      alert('ฟังก์ชัน ' + page + ' กำลังอยู่ในระหว่างการพัฒนา');
+      // ในอนาคตคุณสามารถเปลี่ยนเป็น window.location.href = page + '.html';
+    }
 
-      const btnCard = document.getElementById('btnCreateOffice');
-      if (btnCard) btnCard.href = href;
-    });
+    // 3. เตรียมตัวแปรสำหรับเชื่อมต่อ API (Google Apps Script)
+    // สำหรับหน้า DEV ให้ใส่ URL ของ GAS ตัวทดสอบ
+    // สำหรับหน้า MAIN ให้ใส่ URL ของ GAS ตัวจริง
+    const CONFIG = {
+      apiUrl: "YOUR_GAS_WEB_APP_URL_HERE" 
+    };
 
+    console.log("IIMS System Loaded in Environment: ", window.location.hostname);
   </script>
-
 
 </body>
 </html>
-
-
-
-
-
