@@ -10,35 +10,11 @@
   <title>IIMS | ระบบสารสนเทศการบริหารข้อมูลการประกันภัย (DEV MODE) </title>
   <link rel="stylesheet" href="style.css">
 </head>
+  
 <body>
-  <!-- Header -->
-  <div class="header-wrap">
-    <div class="header">
-      <div class="brand">
-        <div class="logo" title="โลโก้องค์กร">
-          <!-- หากมีโลโก้จริง ให้ใส่ <img src="URL_LOGO" alt="Logo"> -->
-          <span style="font-weight:700;color:#5b1585;">LOGO</span>
-        </div>
-        <div>
-          <h1 class="title-th">ระบบสารสนเทศการบริหารข้อมูลการประกันภัย (DEV MODE)</h1>
-          <div class="title-en">Insurance Information Management System : IIMS</div>
-          <div class="subtitle">แผนกการประกันภัย กองสนับสนุนงานองค์กร</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Navigation -->
-  <div class="nav">
-    <div class="nav-inner">
-      <span class="link primary" onclick="navigate('home')">หน้าแรก</span>
-      <a class="link" href="createoffice.html">สร้างรหัสสำนักงาน (bran_iden)</a>
-
-      <span class="link" onclick="navigate('manage')">จัดการข้อมูล</span>
-      <span class="link" onclick="navigate('reports')">รายงาน</span>
-      <span class="link" onclick="navigate('help')">คู่มือการใช้งาน</span>
-    </div>
-  </div>
+  
+  <!-- Header&Navigation -->
+  <div id="header-placeholder"></div>
 
   <!-- Main Content -->
   <div class="container">
@@ -92,6 +68,11 @@
 
 
   <script>
+    fetch('header.html')
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById('header-placeholder').innerHTML = data;
+    });
     
     // ใส่ปีปัจจุบันใน footer
     document.getElementById('year').textContent = new Date().getFullYear();
@@ -110,4 +91,5 @@
 
 </body>
 </html>
+
 
