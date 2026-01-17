@@ -16,7 +16,7 @@
         <div>
           <h1 class="title-th">ระบบสารสนเทศการบริหารข้อมูลการประกันภัย <span style="color:var(--gold); font-size: 16px;">(DEV MODE)</span> </h1>
           <div class="title-en">Insurance Information Management System : IIMS</div>
-          <div class="subtitle">แผนกการประกันภัย กองสนับสนุนงานองค์กร</div>
+          <div class="subtitle">แผนกงานประกันภัย กองสนับสนุนงานองค์กร</div>
         </div>
       </div>
     </div>
@@ -25,40 +25,50 @@
   <div class="nav">
     <div class="nav-inner">
       <a class="link" href="index.html">หน้าแรก</a>
-      <span class="link active">สร้างรหัสสำนักงาน (bran_iden)</span>
+      <span class="link active">สร้างรหัสสำนักงาน</span>
     </div>
   </div>
 
   <div class="container">
     <div class="card">
-      <h2>สร้างรหัสสำนักงาน (bran_iden)</h2>
-      <p class="notice">ระบุชื่อและที่ตั้งสำนักงาน ระบบจะดึงข้อมูลจากชีท <code>area_code</code> และเจนเนอเรตข้อมูลให้อัตโนมัติ</p>
+      <h2>สร้างรหัสสำนักงาน</h2>
+      <p class="notice">ระบุชื่อและที่ตั้งสำนักงาน ระบบจะสร้างข้อมูล <code>area_code</code> ให้อัตโนมัติ</p>
 
       <div class="form-row">
-        <label>ชื่อสำนักงาน (bran_thai)</label>
-        <input type="text" id="branName" placeholder="เช่น สำนักงานประกันภัยจังหวัดเชียงใหม่" oninput="updatePreview()" />
-      </div>
-
-      <div class="form-row">
-        <label>ที่อยู่ (บ้านเลขที่ / หมู่ / อาคาร / ถนน)</label>
-        <input type="text" id="addressDetail" placeholder="เช่น 123/4 หมู่ 5 ถ.ซุปเปอร์ไฮเวย์" oninput="updatePreview()" />
+        <label>ชื่อสำนักงาน</label>
+        <input type="text" id="branName" placeholder="เช่น การไฟฟ้าส่วนภูมิภาค สาขาเมืองเชียงใหม่" oninput="updatePreview()" />
       </div>
 
       <div class="grid">
         <div class="form-row">
-          <label>พื้นที่ (area_thai)</label>
+          <label> เลขที่ / อาคาร / หมู่ </label>
+          <input type="text" id="addrHouse" placeholder="เช่น เลขที่ 123/4 หมู่ 5" oninput="updatePreview()" />
+        </div>
+        <div class="form-row">
+          <label>ซอย / ถนน</label>
+          <input type="text" id="addrRoad" placeholder="เช่น ถนนพหลโยธิน หรือ - " oninput="updatePreview()" />
+        </div>
+        <div class="form-row">
+          <label>รหัสไปรษณีย์</label>
+          <input type="text" id="zipCode" placeholder="เช่น 10110" maxlength="5" oninput="updatePreview()" />
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="form-row">
+          <label>พื้นที่</label>
           <select id="area" onchange="filterDropdown('prov')"><option value="">— เลือกพื้นที่ —</option></select>
         </div>
         <div class="form-row">
-          <label>จังหวัด (prov_thai)</label>
+          <label>จังหวัด</label>
           <select id="prov" disabled onchange="filterDropdown('dist')"><option value="">— เลือกจังหวัด —</option></select>
         </div>
         <div class="form-row">
-          <label>อำเภอ/เขต (dist_thai)</label>
+          <label>อำเภอ/เขต</label>
           <select id="dist" disabled onchange="filterDropdown('subd')"><option value="">— เลือกอำเภอ —</option></select>
         </div>
         <div class="form-row">
-          <label>ตำบล/แขวง (subd_thai)</label>
+          <label>ตำบล/แขวง</label>
           <select id="subd" disabled onchange="updatePreview()"><option value="">— เลือกตำบล —</option></select>
         </div>
       </div>
@@ -69,11 +79,11 @@
           <div id="viewName" style="font-size: 1.1rem; margin-top: 5px;">—</div>
         </div>
         <div style="margin-bottom: 15px;">
-          <strong style="color:var(--purple);">2. รหัสสำนักงาน (bran_iden):</strong><br>
+          <strong style="color:var(--purple);">2. รหัสสำนักงาน:</strong><br>
           <div id="previewCode" class="badge">—</div>
         </div>
         <div>
-          <strong style="color:var(--purple);">3. ที่อยู่ฉบับเต็ม:</strong>
+          <strong style="color:var(--purple);">3. ที่อยู่:</strong>
           <div id="viewAddress" style="font-size: 0.95rem; margin-top: 5px; line-height: 1.6;">—</div>
         </div>
       </div>
@@ -84,7 +94,7 @@
       </div>
 
       <div class="footer">
-      © <span id="year"></span> IIMS — แผนกการประกันภัย กองสนับสนุนงานองค์กร
+      © <span id="year"></span> IIMS — แผนกงานประกันภัย กองสนับสนุนงานองค์กร
       </div>
     </div>
   </div>
@@ -210,34 +220,76 @@
       }
       updatePreview();
     }
+
+    
+    // ฟังก์ชันสำหรับดึง "รหัส" จากข้อมูลที่เลือก
+    function getSelectedCodes() {
+      const areaVal = document.getElementById('area').value;
+      const provVal = document.getElementById('prov').value;
+      const distVal = document.getElementById('dist').value;
+      const subdVal = document.getElementById('subd').value;
+    
+      // ค้นหาแถวใน rawData ที่ตรงกับเงื่อนไขทั้งหมดที่เลือก
+      const match = rawData.find(i => 
+        i.area_thai === areaVal && 
+        i.prov_thai === provVal && 
+        i.dist_thai === distVal && 
+        i.subd_thai === subdVal
+      );
+    
+      return match ? match : null;
+    }
+    
     
     function updatePreview() {
       const name = document.getElementById('branName').value || "—";
-      const addr = document.getElementById('addressDetail').value;
+      const house = document.getElementById('addrHouse').value;
+      const road = document.getElementById('addrRoad').value;
+      const zip = document.getElementById('zipCode').value;
+      
       const area = document.getElementById('area').value;
       const prov = document.getElementById('prov').value;
       const dist = document.getElementById('dist').value;
       const subd = document.getElementById('subd').value;
-
+    
+      // 1. แสดงชื่อสำนักงาน
       document.getElementById('viewName').innerText = name;
       
-      // รวมที่อยู่แบบเต็ม
-      let fullAddr = addr ? addr + " " : "";
-      if(subd) fullAddr += "ต." + subd + " ";
-      if(dist) fullAddr += "อ." + dist + " ";
-      if(prov) fullAddr += "จ." + prov + " ";
-      document.getElementById('viewAddress').innerText = fullAddr || "—";
-
-      // จำลองการสร้างรหัส (รหัสพื้นที่จากชีท)
-      if(subd) {
-        document.getElementById('previewCode').innerText = "B" + Math.floor(Math.random() * 9000 + 1000);
-        document.getElementById('saveBtn').disabled = false;
+      // 2. จัดการที่อยู่แบบตัวเต็ม (ตาม Pattern ที่ต้องการ)
+      let fullAddr = [];
+      if (house) fullAddr.push(house);
+      if (road) fullAddr.push("ถนน" + road.replace("ถนน", "").replace("ถ.", ""));
+      if (subd) fullAddr.push("ตำบล" + subd);
+      if (dist) {
+        // ถ้าเป็นกรุงเทพ ใช้คำว่า "เขต" ถ้าจังหวัดอื่นใช้ "อำเภอ"
+        const distPrefix = (prov === "กรุงเทพมหานคร") ? "เขต" : "อำเภอ";
+        fullAddr.push(distPrefix + dist);
+      }
+      if (prov) {
+        const provPrefix = (prov === "กรุงเทพมหานคร") ? "" : "จังหวัด";
+        fullAddr.push(provPrefix + prov);
+      }
+      if (zip) fullAddr.push(zip);
+    
+      document.getElementById('viewAddress').innerText = fullAddr.join(", ") || "—";
+    
+      // 3. จัดการรหัส bran_iden (ดึงรหัสที่จับคู่กันมาต่อกัน)
+      const codes = getSelectedCodes();
+      if (codes) {
+        // นำรหัสมาต่อกันตามที่ตกลงไว้ (ตัวอย่าง: area+prov+dist+subd)
+        const combinedCode = `${codes.area_code}${codes.prov_code}${codes.dist_code}${codes.subd_code}`;
+        document.getElementById('previewCode').innerText = combinedCode;
+        document.getElementById('saveBtn').disabled = (name === "—");
+      } else {
+        document.getElementById('previewCode').innerText = "—";
+        document.getElementById('saveBtn').disabled = true;
       }
     }
 
   </script>
 </body>
 </html>
+
 
 
 
