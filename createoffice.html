@@ -95,6 +95,17 @@
         </div>
       </div>
 
+      <div class="grid">
+        <div class="form-row">
+          <label>ชื่อ-นามสกุล ผู้ลงข้อมูล</label>
+          <input type="text" id="creaUser" placeholder="ระบุชื่อผู้บันทึก" />
+        </div>
+        <div class="form-row">
+          <label>เบอร์โทรศัพท์</label>
+          <input type="tel" id="creaTele" placeholder="เช่น 081-234-5678 หรือ (12)34567" />
+        </div>
+      </div>
+
       <div class="actions" style="justify-content: center; margin-top: 24px;">
         <button onclick="location.reload()" class="btn">ล้างข้อมูล</button>
         <button id="saveBtn" class="btn primary" disabled>บันทึกข้อมูล</button>
@@ -304,39 +315,49 @@
       }
     }
 
-    document.getElementById('saveBtn').onclick = async function() {
-      this.disabled = true;
-      this.innerText = "กำลังบันทึก...";
-      
-      const payload = {
-        action: 'saveOffice',
-        data: {
-          bran_thai: document.getElementById('branName').value,
-          address_full: document.getElementById('viewAddress').innerText,
-          bran_iden: document.getElementById('previewCode').innerText,
-          area: document.getElementById('area').value,
-          prov: document.getElementById('prov').value,
-          dist: document.getElementById('dist').value,
-          subd: document.getElementById('subd').value
-        }
-      };
 
-      try {
-        await fetch(API_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          body: JSON.stringify(payload)
-        });
-        alert("บันทึกข้อมูลเรียบร้อยแล้ว (ตรวจสอบที่ Google Sheets)");
-        location.reload();
-      } catch (err) {
-        alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
-        this.disabled = false;
-        this.innerText = "บันทึกข้อมูล";
+    document.getElementById('saveBtn').onclick = async function() {
+    const user = document.getElementById('creaUser').value;
+    const tele = document.getElementById('creaTele').value;
+  
+    if(!user || !tele) {
+      alert("กรุณากรอกชื่อผู้ลงข้อมูลและเบอร์โทรศัพท์ด้วยครับ");
+      return;
+    }
+  
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.style.display = 'flex';
+  
+    const payload = {
+      action: 'saveOffice',
+      data: {
+        crea_user: user,
+        crea_tele: tele,
+        bran_iden: document.getElementById('previewCode').innerText,
+        bran_name: document.getElementById('branName').value,
+        bran_addr: document.getElementById('viewAddress').innerText,
+        // เพิ่มเติม: เราจะให้ Backend (GAS) จัดการเรื่องวันที่, ปี และสถานะ ac ให้อัตโนมัติ
       }
     };
+  
+    try {
+      await fetch(API_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: JSON.stringify(payload)
+      });
+      alert("บันทึกข้อมูลและสร้างรหัสสำนักงานเรียบร้อยแล้ว");
+      location.reload();
+    } catch (err) {
+      alert("เกิดข้อผิดพลาด");
+      overlay.style.display = 'none';
+    }
+  };
+
+    
   </script>
 </body>
 </html>
+
 
 
