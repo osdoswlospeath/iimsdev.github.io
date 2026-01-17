@@ -7,8 +7,15 @@
   <title>IIMS | สร้างรหัสสำนักงาน</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
+  
 <body>
 
+  <div id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text">กำลังโหลดข้อมูลพื้นที่...</div>
+  </div>
+  
   <div class="header-wrap">
     <div class="header">
       <div class="brand">
@@ -114,16 +121,65 @@
     };
 
     async function loadData() {
-      try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error('Network response was not ok');
-        rawData = await response.json();
-        if (rawData.length > 0) populateArea();
-      } catch (err) {
-        console.error("Error loading data:", err);
+        const overlay = document.getElementById('loadingOverlay');
+        overlay.style.display = 'flex'; // แสดงม่าน
+        
+        try {
+          const response = await fetch(API_URL);
+          if (!response.ok) throw new Error('Network response was not ok');
+          rawData = await response.json();
+          
+          if (rawData.length > 0) {
+            populateArea();
+            console.log("Data Loaded successfully");
+          }
+        } catch (err) {
+          console.error("Error loading data:", err);
+          alert("ไม่สามารถดึงข้อมูลได้ กรุณาลอง Refresh หน้าจออีกครั้ง");
+        } finally {
+          // ปิดม่าน ไม่ว่าจะดึงข้อมูลสำเร็จหรือไม่
+          overlay.style.display = 'none';
+        }
       }
-    }
+    
+      // ปรับส่วนบันทึกข้อมูลให้ใช้ม่านนี้ด้วย เพื่อป้องกันการกดซ้ำ
+      document.getElementById('saveBtn').onclick = async function() {
+        const overlay = document.getElementById('loadingOverlay');
+        const loadingText = overlay.querySelector('.loading-text');
+        
+        loadingText.innerText = "กำลังบันทึกข้อมูลลงฐานข้อมูล...";
+        overlay.style.display = 'flex';
+        this.disabled = true;
+    
+        const payload = {
+          action: 'saveOffice',
+          data: {
+            bran_thai: document.getElementById('branName').value,
+            address_full: document.getElementById('viewAddress').innerText,
+            bran_iden: document.getElementById('previewCode').innerText,
+            area: document.getElementById('area').value,
+            prov: document.getElementById('prov').value,
+            dist: document.getElementById('dist').value,
+            subd: document.getElementById('subd').value
+          }
+        };
+    
+        try {
+          await fetch(API_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(payload)
+          });
+          alert("บันทึกข้อมูลเรียบร้อยแล้ว");
+          location.reload();
+        } catch (err) {
+          alert("เกิดข้อผิดพลาดในการบันทึก");
+          overlay.style.display = 'none';
+          this.disabled = false;
+        }
+      };
 
+    
     function populateArea() {
       const areaSelect = document.getElementById('area');
       areaSelect.innerHTML = '<option value="">— เลือกพื้นที่ —</option>';
@@ -282,4 +338,5 @@
   </script>
 </body>
 </html>
+
 
