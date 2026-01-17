@@ -4,7 +4,7 @@
   <base target="_top">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>IIMS | ระบบสารสนเทศการบริหารข้อมูลการประกันภัย</title>
+  <title>IIMS | ระบบสารสนเทศการบริหารข้อมูลงานประกันภัย</title>
   
   <link rel="stylesheet" href="style.css">
 </head>
@@ -16,7 +16,7 @@
           <span style="font-weight:700;color:var(--purple);">LOGO</span>
         </div>
         <div>
-          <h1 class="title-th">ระบบสารสนเทศการบริหารข้อมูลการประกันภัย <span style="color:var(--gold); font-size: 16px;">(DEV MODE)</span> </h1>
+          <h1 class="title-th">ระบบสารสนเทศการบริหารข้อมูลงานประกันภัย <span style="color:var(--gold); font-size: 16px;">(DEV MODE)</span> </h1>
           <div class="title-en">Insurance Information Management System : IIMS</div>
           <div class="subtitle">แผนกการประกันภัย กองสนับสนุนงานองค์กร</div>
         </div>
@@ -27,7 +27,7 @@
   <div class="nav">
     <div class="nav-inner">
       <a class="link primary" href="index.html">หน้าแรก</a>
-      <a class="link" href="createoffice.html">สร้างรหัสสำนักงาน (bran_iden)</a>
+      <a class="link" href="createoffice.html">สร้างรหัสสำนักงาน</a>
       <span class="link" onclick="navigate('manage')">จัดการข้อมูล</span>
       <span class="link" onclick="navigate('reports')">รายงาน</span>
       <span class="link" onclick="navigate('help')">คู่มือการใช้งาน</span>
@@ -38,16 +38,15 @@
     <div class="card">
       <h2>ยินดีต้อนรับเข้าสู่ระบบ IIMS</h2>
       <p class="notice">
-        เคล็ดลับ: ใช้เมนูด้านบนเพื่อไปยังหน้าฟังก์ชันที่ต้องการ เช่น
-        <strong>“สร้างรหัสสำนักงาน (bran_iden)”</strong> เพื่อบันทึกข้อมูลลงชีท <code>bran_code</code>.
+        เคล็ดลับ: ใช้เมนูด้านบนเพื่อไปยังหน้าที่ต้องการ
       </p>
 
       <div class="sections">
         <div class="section">
           <h3>สร้างรหัสสำนักงาน</h3>
-          <p>เลือกพื้นที่ → จังหวัด → อำเภอ → ตำบล และระบุชื่อสำนักงาน ระบบจะสร้างรหัส <code>bran_iden</code> และบันทึกลงชีท <code>bran_code</code>.</p>
+          <p>เลือกพื้นที่ → จังหวัด → อำเภอ → ตำบล และระบุชื่อสำนักงาน ระบบจะสร้างรหัสให้โดยอัตโนมัติ</p>
           <div class="actions">
-            <a class="btn primary" href="createoffice.html">เริ่มต้นใช้งาน</a>
+            <a class="btn primary" href="createoffice.html">สร้างรหัส</a>
             <span class="btn" onclick="navigate('help')">ดูวิธีใช้</span>
           </div>
         </div>
@@ -93,3 +92,4 @@
   </script>
 </body>
 </html>
+
