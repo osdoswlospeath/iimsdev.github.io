@@ -4,13 +4,16 @@ fetch('header.html')
   .then(data => {
     document.getElementById('header-placeholder').innerHTML = data;
     
-    // ตรวจสอบว่าอยู่หน้าไหน และเติม class "active" ให้เมนูนั้น
+    // ตรรกะเช็คชื่อไฟล์เพื่อเติมสี Active
     const currentPage = window.location.pathname.split("/").pop();
     
     if (currentPage === "index.html" || currentPage === "") {
-      document.getElementById('nav-home').classList.add('active');
+      const homeLink = document.getElementById('nav-home');
+      if(homeLink) homeLink.classList.add('active');
     } else if (currentPage === "huboffice.html" || currentPage === "createoffice.html") {
-      document.getElementById('nav-hub').classList.add('active');
+      const hubLink = document.getElementById('nav-hub');
+      if(hubLink) hubLink.classList.add('active');
     }
-  })
+  });
+  
   .catch(error => console.error('Error loading header:', error));
