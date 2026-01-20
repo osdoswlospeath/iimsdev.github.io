@@ -15,5 +15,3 @@ fetch('header.html')
       if(hubLink) hubLink.classList.add('active');
     }
   });
-  
-  .catch(error => console.error('Error loading header:', error));
