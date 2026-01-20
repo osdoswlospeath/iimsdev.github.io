@@ -35,24 +35,19 @@
 
   <div class="container">
     <div class="card">
-      <h2>ศูนย์รวมข้อมูลสำนักงาน</h2>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="margin: 0;">ศูนย์รวมข้อมูลสำนักงาน</h2>
+        <a href="createoffice.html" class="btn primary" style="text-decoration: none;">+ สร้างรหัสสำนักงานใหม่</a>
+      </div>
       
       <div class="search-section" style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 24px;">
-        <div class="grid">
-          <div class="form-row">
-            <label>ค้นหาจาก ชื่อ หรือ รหัสสำนักงาน</label>
-            <input type="text" id="searchTerm" placeholder="พิมพ์ชื่อสำนักงาน หรือ รหัส..." oninput="filterTable()" />
-          </div>
-          <div class="form-row">
-            <label>กรองตามจังหวัด</label>
-            <select id="filterProv" onchange="filterTable()">
-              <option value="">— ทั้งหมด —</option>
-            </select>
-          </div>
+        <div class="form-row">
+          <label>ค้นหาข้อมูลสำนักงาน</label>
+          <input type="text" id="searchTerm" placeholder="พิมพ์ชื่อสำนักงาน, รหัส, จังหวัด หรือที่อยู่เพื่อค้นหา..." oninput="filterTable()" style="width: 100%;" />
         </div>
-        <p style="font-size: 0.85rem; color: #666; margin-top: 10px;">* ระบบจะค้นหาจากทุกข้อมูลที่ปรากฏในตารางอัตโนมัติ</p>
+        <p style="font-size: 0.85rem; color: #666; margin-top: 10px;">* ระบบจะกรองข้อมูลจากทุกคอลัมน์ให้อัตโนมัติขณะที่คุณพิมพ์</p>
       </div>
-
+      
       <div style="overflow-x: auto;">
         <table style="width: 100%; border-collapse: collapse; min-width: 800px;">
           <thead>
@@ -117,16 +112,19 @@
     }
 
     function filterTable() {
-      const term = document.getElementById('searchTerm').value.toLowerCase();
-      const prov = document.getElementById('filterProv').value;
-
-      const filtered = allOffices.filter(o => {
-        const matchesTerm = (o.bran_name.toLowerCase().includes(term) || o.bran_iden.toLowerCase().includes(term) || o.bran_addr.toLowerCase().includes(term));
-        const matchesProv = prov === "" || o.prov === prov;
-        return matchesTerm && matchesProv;
-      });
-      renderTable(filtered);
-    }
+        const term = document.getElementById('searchTerm').value.toLowerCase();
+        // ค้นหาแบบ Global จากทุกฟิลด์ที่สำคัญ
+        const filtered = allOffices.filter(o => {
+          return (
+            String(o.bran_iden).toLowerCase().includes(term) || 
+            String(o.bran_name).toLowerCase().includes(term) || 
+            String(o.prov).toLowerCase().includes(term) || 
+            String(o.bran_addr).toLowerCase().includes(term) ||
+            String(o.crea_user).toLowerCase().includes(term)
+          );
+        });
+        renderTable(filtered);
+      }
   </script>
 </body>
 </html>
