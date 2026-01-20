@@ -1,31 +1,30 @@
-// ฟังก์ชันโหลด Header
 async function loadHeader() {
-  const placeholder = document.getElementById('header-placeholder');
-  if (!placeholder) return; // ถ้าหน้าไหนไม่มี placeholder ไม่ต้องรันต่อ
-
   try {
     const response = await fetch('header.html');
-    if (!response.ok) throw new Error('ไม่พบไฟล์ header.html');
-    
-    const html = await response.text();
-    placeholder.innerHTML = html;
+    const data = await response.text();
+    document.getElementById('header-placeholder').innerHTML = data;
 
-    // เติมสีปุ่ม Active (ตรวจสอบหลังจาก HTML ถูกใส่เข้าไปแล้ว)
-    const currentPage = window.location.pathname.split("/").pop() || "index.html";
-    
-    if (currentPage === "index.html") {
-      const btn = document.getElementById('nav-home');
-      if (btn) btn.classList.add('active');
-    } else if (currentPage === "huboffice.html" || currentPage === "createoffice.html") {
-      const btn = document.getElementById('nav-hub');
-      if (btn) btn.classList.add('active');
+    // หาชื่อไฟล์ปัจจุบัน (เช่น index.html หรือ huboffice.html)
+    const path = window.location.pathname;
+    const page = path.split("/").pop() || "index.html";
+
+    // ล้างสีเดิมออกก่อน (เผื่อไว้)
+    document.querySelectorAll('.nav .link').forEach(link => {
+      link.classList.remove('active');
+    });
+
+    // ตรวจสอบหน้าและเติม Class 'active' เพื่อให้สีทองขึ้น
+    if (page === "index.html") {
+      const el = document.getElementById('nav-home');
+      if (el) el.classList.add('active');
+    } else if (page === "huboffice.html" || page === "createoffice.html") {
+      const el = document.getElementById('nav-hub');
+      if (el) el.classList.add('active');
     }
+
   } catch (error) {
-    console.error('เกิดข้อผิดพลาด:', error);
-    // ถ้าโหลดไม่ขึ้น ให้แสดงข้อความแจ้งเตือนแทนม่านว่างๆ
-    placeholder.innerHTML = `<div style="padding:20px; background:red; color:white;">Error: โหลดส่วนหัวไม่สำเร็จ - ${error.message}</div>`;
+    console.error('Error loading header:', error);
   }
 }
 
-// รันฟังก์ชันทันที
 loadHeader();
