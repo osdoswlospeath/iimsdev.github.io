@@ -10,8 +10,7 @@
   
   <link rel="stylesheet" href="style.css">
   <div id="header-placeholder"></div>
-  <script src="script.js"></script>
-  
+    
 </head>
 
   
@@ -65,16 +64,20 @@
     </div>
   </div>
 
-  <script>
+  <script src="script.js">
+    
     document.getElementById('year').textContent = new Date().getFullYear();
     function navigate(page) { alert('ฟังก์ชัน ' + page + ' กำลังพัฒนา'); }
     
     // ตั้งค่า Environment (Dev/Prod)
     const IS_DEV = true; // เปลี่ยนเป็น false เมื่อนำขึ้น Production
     const API_URL = IS_DEV ? "URL_GAS_DEV" : "URL_GAS_PROD";
+    
   </script>
+  
 </body>
 </html>
+
 
 
 
