@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>IIMS | ศูนย์รวมข้อมูลสำนักงาน</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text">กำลังโหลดฐานข้อมูลสำนักงาน...</div>
+  </div>
+
+  <div class="header-wrap">
+    <div class="header">
+      <div class="brand">
+        <div class="logo"><span style="font-weight:700;color:var(--purple);">LOGO</span></div>
+        <div>
+          <h1 class="title-th">ระบบสารสนเทศการบริหารข้อมูลการประกันภัย <span style="color:var(--gold); font-size: 16px;">(DEV MODE)</span> </h1>
+          <div class="title-en">Insurance Information Management System : IIMS</div>
+          <div class="subtitle">แผนกงานประกันภัย กองสนับสนุนงานองค์กร</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <div class="nav-inner">
+      <a class="link" href="index.html">หน้าแรก</a>
+      <a class="link" href="createoffice.html">สร้างรหัสสำนักงาน</a>
+      <span class="link active">ศูนย์ข้อมูลสำนักงาน</span>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <h2>ศูนย์รวมข้อมูลสำนักงาน</h2>
+      
+      <div class="search-section" style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 24px;">
+        <div class="grid">
+          <div class="form-row">
+            <label>ค้นหาจาก ชื่อ หรือ รหัสสำนักงาน</label>
+            <input type="text" id="searchTerm" placeholder="พิมพ์ชื่อสำนักงาน หรือ รหัส..." oninput="filterTable()" />
+          </div>
+          <div class="form-row">
+            <label>กรองตามจังหวัด</label>
+            <select id="filterProv" onchange="filterTable()">
+              <option value="">— ทั้งหมด —</option>
+            </select>
+          </div>
+        </div>
+        <p style="font-size: 0.85rem; color: #666; margin-top: 10px;">* ระบบจะค้นหาจากทุกข้อมูลที่ปรากฏในตารางอัตโนมัติ</p>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; min-width: 800px;">
+          <thead>
+            <tr style="background: var(--purple); color: white; text-align: left;">
+              <th style="padding: 12px; border: 1px solid var(--border);">รหัสสำนักงาน</th>
+              <th style="padding: 12px; border: 1px solid var(--border);">ชื่อสำนักงาน</th>
+              <th style="padding: 12px; border: 1px solid var(--border);">ที่ตั้ง (จังหวัด)</th>
+              <th style="padding: 12px; border: 1px solid var(--border);">สถานะ</th>
+              <th style="padding: 12px; border: 1px solid var(--border); text-align: center;">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="officeTableBody">
+            </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbz8zohztNMZnGpYzQ-vSL6Uj6AZKP9npCsOUC3zSAYJnzkB3yy1OKar2yasMxGmVv_G/exec";
+    let allOffices = [];
+
+    window.onload = async function() {
+      const overlay = document.getElementById('loadingOverlay');
+      try {
+        // ดึงข้อมูลจากชีท bran_iden ผ่าน action ใหม่ที่เราจะไปเขียนใน GAS
+        const response = await fetch(`${API_URL}?action=getAllOffices`);
+        allOffices = await response.json();
+        
+        populateProvFilter();
+        renderTable(allOffices);
+      } catch (e) {
+        console.error("Load error:", e);
+      } finally {
+        overlay.style.display = 'none';
+      }
+    };
+
+    function populateProvFilter() {
+      const provSelect = document.getElementById('filterProv');
+      const provs = [...new Set(allOffices.map(o => o.prov))].sort();
+      provs.forEach(p => provSelect.add(new Option(p, p)));
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById('officeTableBody');
+      tbody.innerHTML = data.map(office => `
+        <tr style="border-bottom: 1px solid var(--border);">
+          <td style="padding: 12px; font-weight: bold; color: var(--purple);">${office.bran_iden}</td>
+          <td style="padding: 12px;">${office.bran_name}</td>
+          <td style="padding: 12px;">${office.prov}</td>
+          <td style="padding: 12px;">
+            <span class="badge" style="background: ${office.bran_iden_stat === 'ac' ? '#22c55e' : '#ef4444'}; color: white; padding: 4px 8px; font-size: 0.75rem;">
+              ${office.bran_iden_stat === 'ac' ? 'ใช้งานอยู่' : 'ยกเลิก'}
+            </span>
+          </td>
+          <td style="padding: 12px; text-align: center;">
+            <a href="viewoffice.html?id=${office.bran_iden}" class="btn" style="padding: 4px 12px; font-size: 0.85rem;">ดูข้อมูล</a>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function filterTable() {
+      const term = document.getElementById('searchTerm').value.toLowerCase();
+      const prov = document.getElementById('filterProv').value;
+
+      const filtered = allOffices.filter(o => {
+        const matchesTerm = (o.bran_name.toLowerCase().includes(term) || o.bran_iden.toLowerCase().includes(term) || o.bran_addr.toLowerCase().includes(term));
+        const matchesProv = prov === "" || o.prov === prov;
+        return matchesTerm && matchesProv;
+      });
+      renderTable(filtered);
+    }
+  </script>
+</body>
+</html>
