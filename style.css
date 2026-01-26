@@ -89,3 +89,18 @@ input, select { padding: 12px; border: 1px solid var(--border); border-radius: 8
   font-weight: 600;
   color: var(--purple);
 }
+
+/* เพิ่มความเจาะจงให้ CSS */
+#header-placeholder .nav {
+  background: #4a0f70 !important; /* บังคับสีม่วงเข้ม */
+  display: block !important;
+  width: 100%;
+}
+
+#header-placeholder .nav-inner {
+  display: flex;
+  gap: 10px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 8px 24px;
+}
