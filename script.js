@@ -1,26 +1,27 @@
 async function loadHeader() {
+  const placeholder = document.getElementById('header-placeholder');
+  if (!placeholder) return;
+
   try {
     const response = await fetch('header.html');
     const data = await response.text();
-    document.getElementById('header-placeholder').innerHTML = data;
+    placeholder.innerHTML = data;
 
-    // หาชื่อไฟล์ปัจจุบัน (เช่น index.html หรือ huboffice.html)
+    // --- ส่วนที่แก้ไขให้แม่นยำขึ้น ---
     const path = window.location.pathname;
-    const page = path.split("/").pop() || "index.html";
+    
+    // ตรวจสอบว่า URL ลงท้ายด้วยอะไร
+    const isIndex = path.endsWith('index.html') || path.endsWith('/') || path === '';
+    const isHub = path.includes('huboffice.html') || path.includes('createoffice.html') || path.includes('viewoffice.html');
 
-    // ล้างสีเดิมออกก่อน (เผื่อไว้)
-    document.querySelectorAll('.nav .link').forEach(link => {
-      link.classList.remove('active');
-    });
-
-    // ตรวจสอบหน้าและเติม Class 'active' เพื่อให้สีทองขึ้น
-    if (page === "index.html") {
+    if (isIndex) {
       const el = document.getElementById('nav-home');
       if (el) el.classList.add('active');
-    } else if (page === "huboffice.html" || page === "createoffice.html") {
+    } else if (isHub) {
       const el = document.getElementById('nav-hub');
       if (el) el.classList.add('active');
     }
+    // ----------------------------
 
   } catch (error) {
     console.error('Error loading header:', error);
