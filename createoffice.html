@@ -373,14 +373,15 @@
       };
     
       try {
-        await fetch(API_URL, {
+        fetch(API_URL, {
           method: 'POST',
+          mode: 'no-cors',          // ← จำเป็น
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'text/plain' // ← แนะนำ (อย่าใช้ application/json)
           },
           body: JSON.stringify(payload)
         });
-        
+
         alert("ดำเนินการแล้วเสร็จ");
         location.reload();
       } catch (err) {
@@ -392,6 +393,7 @@
   </script>
 </body>
 </html>
+
 
 
 
