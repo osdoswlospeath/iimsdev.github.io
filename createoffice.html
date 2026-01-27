@@ -317,7 +317,7 @@
           return isSameLocation && isBigger;
         });
     
-        hierSelect.innerHTML = '<option value="">— ไม่สังกัดใคร (สำนักงานแม่) —</option>';
+        hierSelect.innerHTML = '<option value="">— ต้นสังกัด —</option>';
         filtered.forEach(o => {
           // แสดงเป็น ชื่อสำนักงาน [รหัส] เพื่อให้คนเลือกง่าย แต่ค่าที่เก็บ (value) คือ bran_iden
           hierSelect.add(new Option(`${o.bran_name} [${o.bran_size}]`, o.bran_iden));
@@ -426,6 +426,7 @@
   </script>
 </body>
 </html>
+
 
 
 
