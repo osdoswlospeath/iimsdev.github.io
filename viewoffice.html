@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>IIMS | รายละเอียดสำนักงาน</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* สไตล์สำหรับการสั่งพิมพ์โดยเฉพาะ */
+    @media print {
+      #header-placeholder, .nav, .btn, .footer { display: none !important; }
+      .container { max-width: 100%; margin: 0; padding: 0; }
+      .card { border: none; box-shadow: none; padding: 0; }
+      .print-only { display: block !important; }
+      .screen-only { display: none !important; }
+      
+      table.print-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      table.print-table th, table.print-table td {
+        border: 1px solid #000;
+        padding: 8px;
+        text-align: left;
+      }
+    }
+    .print-only { display: none; }
+    .data-row { display: flex; border-bottom: 1px solid var(--border); padding: 10px 0; }
+    .data-label { font-weight: bold; width: 150px; color: var(--purple); }
+    .data-value { flex: 1; }
+  </style>
+</head>
+<body>
+  <div id="header-placeholder"></div>
+
+  <div class="container">
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--purple); padding-bottom: 10px; margin-bottom: 20px;">
+        <h2 style="margin:0;">รายละเอียดสำนักงาน</h2>
+        <button onclick="window.print()" class="btn primary screen-only">🖨️ สั่งพิมพ์รายงาน</button>
+      </div>
+
+      <div id="officeDetail" class="screen-only">
+        <div class="data-row"><div class="data-label">รหัสสำนักงาน:</div><div id="d-iden" class="data-value">—</div></div>
+        <div class="data-row"><div class="data-label">ชื่อสำนักงาน:</div><div id="d-name" class="data-value">—</div></div>
+        <div class="data-row"><div class="data-label">ที่อยู่:</div><div id="d-addr" class="data-value">—</div></div>
+        <div class="data-row"><div class="data-label">สถานะ:</div><div id="d-stat" class="data-value">—</div></div>
+        <div class="data-row"><div class="data-label">ผู้ลงข้อมูล:</div><div id="d-user" class="data-value">—</div></div>
+        <div class="data-row"><div class="data-label">เบอร์โทรศัพท์:</div><div id="d-tele" class="data-value">—</div></div>
+        <div class="data-row"><div class="data-label">วันที่สร้าง:</div><div id="d-date" class="data-value">—</div></div>
+      </div>
+
+      <div class="print-only">
+        <center>
+          <h3>แบบสรุปข้อมูลรหัสสำนักงาน</h3>
+          <p>ระบบสารสนเทศการบริหารข้อมูลงานประกันภัย (IIMS)</p>
+        </center>
+        <table class="print-table">
+          <tr><th>หัวข้อ</th><th>รายละเอียด</th></tr>
+          <tr><td>รหัสสำนักงาน</td><td id="p-iden"></td></tr>
+          <tr><td>ชื่อสำนักงาน</td><td id="p-name"></td></tr>
+          <tr><td>ที่ตั้ง/ที่อยู่</td><td id="p-addr"></td></tr>
+          <tr><td>ผู้รับผิดชอบ</td><td id="p-user"></td></tr>
+          <tr><td>เบersโทรติดต่อ</td><td id="p-tele"></td></tr>
+          <tr><td>วันที่ทำรายการ</td><td id="p-date"></td></tr>
+        </table>
+        <p style="margin-top: 50px; text-align: right;">ลงชื่อ..........................................................ผู้ตรวจสอบ</p>
+      </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="huboffice.html" class="btn screen-only">กลับหน้าศูนย์ข้อมูล</a>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    // ดึงรหัสไอดีจาก URL เช่น viewoffice.html?id=1001
+    const urlParams = new URLSearchParams(window.location.search);
+    const officeId = urlParams.get('id');
+
+    window.onload = async function() {
+      if (!officeId) {
+        alert("ไม่พบรหัสสำนักงาน");
+        return;
+      }
+      
+      // ดึงข้อมูลทั้งหมดมาค้นหา (หรือสร้าง action ใน GAS ให้หาตัวเดียวก็ได้)
+      try {
+        const API_URL = "https://script.google.com/macros/s/AKfycbz8zohztNMZnGpYzQ-vSL6Uj6AZKP9npCsOUC3zSAYJnzkB3yy1OKar2yasMxGmVv_G/exec?action=getAllOffices";
+        const response = await fetch(API_URL);
+        const allData = await response.json();
+        
+        const office = allData.find(o => String(o.bran_iden) === officeId);
+        
+        if (office) {
+          // ใส่ข้อมูลในหน้าจอ
+          document.getElementById('d-iden').innerText = office.bran_iden;
+          document.getElementById('d-name').innerText = office.bran_name;
+          document.getElementById('d-addr').innerText = office.bran_addr;
+          document.getElementById('d-stat').innerText = office.bran_iden_stat === 'ac' ? 'ใช้งานปกติ' : 'ยกเลิก';
+          document.getElementById('d-user').innerText = office.crea_user;
+          document.getElementById('d-tele').innerText = office.crea_tele;
+          document.getElementById('d-date').innerText = office.crea_date;
+
+          // ใส่ข้อมูลในหน้าพิมพ์
+          document.getElementById('p-iden').innerText = office.bran_iden;
+          document.getElementById('p-name').innerText = office.bran_name;
+          document.getElementById('p-addr').innerText = office.bran_addr;
+          document.getElementById('p-user').innerText = office.crea_user;
+          document.getElementById('p-tele').innerText = office.crea_tele;
+          document.getElementById('p-date').innerText = office.crea_date;
+        }
+      } catch (e) {
+        console.error("Fetch error:", e);
+      }
+    };
+  </script>
+</body>
+</html>
