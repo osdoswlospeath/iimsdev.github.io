@@ -167,44 +167,6 @@
         }
       }
     
-      // ปรับส่วนบันทึกข้อมูลให้ใช้ม่านนี้ด้วย เพื่อป้องกันการกดซ้ำ
-      document.getElementById('saveBtn').onclick = async function() {
-        const overlay = document.getElementById('loadingOverlay');
-        const loadingText = overlay.querySelector('.loading-text');
-        
-        loadingText.innerText = "กำลังบันทึกข้อมูลลงฐานข้อมูล...";
-        overlay.style.display = 'flex';
-        this.disabled = true;
-    
-        const payload = {
-          action: 'saveOffice',
-          data: {
-            bran_thai: document.getElementById('branName').value,
-            address_full: document.getElementById('viewAddress').innerText,
-            bran_iden: document.getElementById('previewCode').innerText,
-            area: document.getElementById('area').value,
-            prov: document.getElementById('prov').value,
-            dist: document.getElementById('dist').value,
-            subd: document.getElementById('subd').value
-          }
-        };
-    
-        try {
-          await fetch(API_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify(payload)
-          });
-          alert("บันทึกข้อมูลเรียบร้อยแล้ว");
-          location.reload();
-        } catch (err) {
-          alert("เกิดข้อผิดพลาดในการบันทึก");
-          overlay.style.display = 'none';
-          this.disabled = false;
-        }
-      };
-
-    
     function populateArea() {
       const areaSelect = document.getElementById('area');
       areaSelect.innerHTML = '<option value="">— เลือกพื้นที่ —</option>';
@@ -388,6 +350,7 @@
       }
     
       const overlay = document.getElementById('loadingOverlay');
+      overlay.querySelector('.loading-text').innerText = "กำลังดำเนินการ...";
       overlay.style.display = 'flex';
     
       const payload = {
@@ -410,15 +373,15 @@
       };
     
       try {
-        const resp = await fetch(API_URL, {
+        await fetch(API_URL, {
           method: 'POST',
           mode: 'no-cors',
           body: JSON.stringify(payload)
         });
-        alert("บันทึกข้อมูลเรียบร้อยแล้ว");
+        alert("ดำเนินการแล้วเสร็จ");
         location.reload();
       } catch (err) {
-        alert("เกิดข้อผิดพลาดในการบันทึก");
+        alert("เกิดข้อผิดพลาด");
         overlay.style.display = 'none';
       }
     };
@@ -426,6 +389,7 @@
   </script>
 </body>
 </html>
+
 
 
 
