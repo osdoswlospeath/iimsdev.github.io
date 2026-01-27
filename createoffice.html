@@ -65,6 +65,35 @@
         </div>
       </div>
 
+      <div class="grid">
+        <div class="form-row">
+          <label>ขนาดสำนักงาน</label>
+          <select id="branSize" onchange="updateHierDropdown(); updatePreview();">
+            <option value="">— เลือกขนาด —</option>
+            <option value="XL">XL</option>
+            <option value="L">L</option>
+            <option value="M">M</option>
+            <option value="S">S</option>
+            <option value="XS">XS</option>
+          </select>
+        </div>
+      
+        <div class="form-row">
+          <label>สำนักงานต้นสังกัด</label>
+          <select id="branHier" disabled onchange="updatePreview()">
+            <option value="">— กรุณาเลือกขนาดและพื้นที่ก่อน —</option>
+          </select>
+        </div>
+      
+        <div class="form-row">
+          <label>มีคลังพัสดุ</label>
+          <select id="branWare" onchange="updatePreview()">
+            <option value="FALSE">ไม่มี</option>
+            <option value="TRUE">มี</option>
+          </select>
+        </div>
+      </div>
+      
       <div class="preview" style="text-align: left; padding: 20px;">
         <div style="margin-bottom: 15px;">
           <strong style="color:var(--purple);">1. ชื่อสำนักงาน:</strong>
@@ -253,6 +282,54 @@
       );
     }
 
+
+    // ลำดับความใหญ่ของสำนักงานเพื่อใช้เปรียบเทียบ
+    const sizeRank = { "XL": 5, "L": 4, "M": 3, "S": 2, "XS": 1 };
+    
+    async function updateHierDropdown() {
+      const sizeVal = document.getElementById('branSize').value;
+      const areaVal = document.getElementById('area').value;
+      const provVal = document.getElementById('prov').value;
+      const hierSelect = document.getElementById('branHier');
+    
+      // ถ้ายังเลือกข้อมูลไม่ครบ ให้ปิด Dropdown ไว้ก่อน
+      if (!sizeVal || !areaVal || !provVal) {
+        hierSelect.innerHTML = '<option value="">— กรุณาเลือกขนาดและพื้นที่ก่อน —</option>';
+        hierSelect.disabled = true;
+        return;
+      }
+    
+      hierSelect.disabled = false;
+      hierSelect.innerHTML = '<option value="">— กำลังโหลดข้อมูลต้นสังกัด... —</option>';
+    
+      try {
+        // ดึงข้อมูลสำนักงานทั้งหมดจาก Sheet (ใช้ Action getAllOffices ที่เราเคยทำในหน้า Hub)
+        const response = await fetch(`${API_URL}?action=getAllOffices`);
+        const allOffices = await response.json();
+    
+        // ตรรกะการกรอง: 
+        // 1. พื้นที่ (Area) และ จังหวัด (Prov) ต้องตรงกัน
+        // 2. ขนาด (Size) ต้องใหญ่กว่าตัวที่กำลังเลือกอยู่
+        const filtered = allOffices.filter(office => {
+          // หมายเหตุ: ในฐานข้อมูล bran_iden เราเก็บ prov_thai และ area_thai ไว้ (อ้างอิงจากโค้ดเดิม)
+          const isSameLocation = office.area === areaVal && office.prov === provVal;
+          const isBigger = sizeRank[office.bran_size] > sizeRank[sizeVal];
+          return isSameLocation && isBigger;
+        });
+    
+        hierSelect.innerHTML = '<option value="">— ไม่สังกัดใคร (สำนักงานแม่) —</option>';
+        filtered.forEach(o => {
+          // แสดงเป็น ชื่อสำนักงาน [รหัส] เพื่อให้คนเลือกง่าย แต่ค่าที่เก็บ (value) คือ bran_iden
+          hierSelect.add(new Option(`${o.bran_name} [${o.bran_size}]`, o.bran_iden));
+        });
+    
+      } catch (err) {
+        console.error("Error loading hierarchy:", err);
+        hierSelect.innerHTML = '<option value="">— โหลดข้อมูลผิดพลาด —</option>';
+      }
+    }
+
+    
     function updatePreview() {
       const name = document.getElementById('branName').value || "—";
       const house = document.getElementById('addrHouse').value;
@@ -300,49 +377,56 @@
       }
     }
 
-
     document.getElementById('saveBtn').onclick = async function() {
-    const user = document.getElementById('creaUser').value;
-    const tele = document.getElementById('creaTele').value;
-  
-    if(!user || !tele) {
-      alert("กรุณากรอกชื่อผู้ลงข้อมูลและเบอร์โทรศัพท์ด้วยครับ");
-      return;
-    }
-  
-    const overlay = document.getElementById('loadingOverlay');
-    overlay.style.display = 'flex';
-  
-    const payload = {
-      action: 'saveOffice',
-      data: {
-        crea_user: user,
-        crea_tele: tele,
-        bran_iden: document.getElementById('previewCode').innerText,
-        bran_name: document.getElementById('branName').value,
-        bran_addr: document.getElementById('viewAddress').innerText,
-        // เพิ่มเติม: เราจะให้ Backend (GAS) จัดการเรื่องวันที่, ปี และสถานะ ac ให้อัตโนมัติ
+      const user = document.getElementById('creaUser').value;
+      const tele = document.getElementById('creaTele').value;
+      const size = document.getElementById('branSize').value;
+    
+      if(!user || !tele || !size) {
+        alert("กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน (ชื่อผู้ลงข้อมูล, เบอร์โทร และขนาดสำนักงาน)");
+        return;
+      }
+    
+      const overlay = document.getElementById('loadingOverlay');
+      overlay.style.display = 'flex';
+    
+      const payload = {
+        action: 'saveOffice',
+        data: {
+          crea_user: user,
+          crea_tele: tele,
+          bran_iden: document.getElementById('previewCode').innerText,
+          bran_name: document.getElementById('branName').value,
+          bran_addr: document.getElementById('viewAddress').innerText,
+          // ค่าที่เพิ่มใหม่
+          bran_size: size,
+          bran_hier: document.getElementById('branHier').value, // จะได้เป็น bran_iden ของที่เลือก
+          bran_ware: document.getElementById('branWare').value, // TRUE หรือ FALSE
+          area: document.getElementById('area').value,
+          prov: document.getElementById('prov').value,
+          dist: document.getElementById('dist').value,
+          subd: document.getElementById('subd').value
+        }
+      };
+    
+      try {
+        const resp = await fetch(API_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          body: JSON.stringify(payload)
+        });
+        alert("บันทึกข้อมูลเรียบร้อยแล้ว");
+        location.reload();
+      } catch (err) {
+        alert("เกิดข้อผิดพลาดในการบันทึก");
+        overlay.style.display = 'none';
       }
     };
-  
-    try {
-      await fetch(API_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: JSON.stringify(payload)
-      });
-      alert("บันทึกข้อมูลและสร้างรหัสสำนักงานเรียบร้อยแล้ว");
-      location.reload();
-    } catch (err) {
-      alert("เกิดข้อผิดพลาด");
-      overlay.style.display = 'none';
-    }
-  };
-
     
   </script>
 </body>
 </html>
+
 
 
 
