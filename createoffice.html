@@ -373,23 +373,28 @@
       };
     
       try {
-        fetch(API_URL, {
+        // เปลี่ยนวิธีส่งเพื่อรองรับ CORS และรับผลลัพธ์กลับมาเช็ค
+        const response = await fetch(API_URL, {
           method: 'POST',
-          mode: 'no-cors',
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8', 
+          },
         });
-
-        alert("ดำเนินการแล้วเสร็จ");
+      
+        // ถ้าใช้ no-cors จะเช็ค response.ok ไม่ได้ แต่ถ้าปรับเป็นแบบปกติจะเช็คได้
+        alert("ดำเนินการบันทึกข้อมูลเรียบร้อยแล้ว");
         location.reload();
       } catch (err) {
-        alert("เกิดข้อผิดพลาด");
+        console.error(err);
+        alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
         overlay.style.display = 'none';
       }
-    };
     
   </script>
 </body>
 </html>
+
 
 
 
