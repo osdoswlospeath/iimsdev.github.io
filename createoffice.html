@@ -133,23 +133,28 @@
 
   
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbx4QQcmDFu_dHbXr0TmELZ8BEpp2y2vB0BOd0erxdhKuUCiRnuZK7_GbQHROw3qgIcw/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwYo97WW15ZYbbMe7d0-1Ba2N3suVibyxc0Z64HJBBaXGBniXdzBGCgbqazNnXdnhML/exec";
     
     // ฟังก์ชันดึงสำนักงานแม่มาใส่ Dropdown
     async function loadParentOffices() {
       try {
-        // เพิ่มโหมดรันแบบไม่ต้องเช็ค Header เข้มงวดในช่วงแรก
+        // ต้องใส่ redirect: 'follow' เพื่อแก้ปัญหา CORS ของ Google Script
         const resp = await fetch(`${API_URL}?action=getOffices`, {
           method: 'GET',
-          redirect: 'follow' // บังคับให้วิ่งตาม Redirect ของ Google
+          redirect: 'follow'
         });
         
-        if (!resp.ok) throw new Error('Network response was not ok');
-        
         const list = await resp.json();
-        // ... โค้ดใส่ Dropdown เหมือนเดิม ...
+        const select = document.getElementById('branHier');
+        select.innerHTML = '<option value="-">ไม่มี (เป็นสำนักงานแม่หลัก)</option>';
+        
+        if (Array.isArray(list)) {
+          list.forEach(item => {
+            select.innerHTML += `<option value="${item.iden}">${item.name} (${item.iden})</option>`;
+          });
+        }
       } catch (e) {
-        console.error("CORS or Fetch Error:", e);
+        console.error("CORS Error:", e);
       }
     }
     
@@ -163,39 +168,41 @@
         return;
       }
     
-      const payload = {
+    const payload = {
         action: 'saveOffice',
         data: {
           bran_iden: document.getElementById('previewCode').innerText,
           bran_name: document.getElementById('branName').value,
           bran_addr: document.getElementById('viewAddress').innerText,
-          bran_size: size,
+          bran_size: document.getElementById('branSize').value,
           bran_hier: document.getElementById('branHier').value,
           bran_ware: document.getElementById('branWare').value
         }
       };
     
       try {
-        // ใช้ fetch แบบส่ง JSON ตรงๆ
-        await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify(payload)
-        });
-        
-        alert("บันทึกข้อมูลสำเร็จ!");
-        location.reload();
-      } catch (err) {
-        alert("บันทึกไม่สำเร็จ โปรดลองอีกครั้ง");
+          // การ POST ไปยัง GAS ต้องใช้ Content-Type: text/plain เพื่อเลี่ยง CORS preflight
+          await fetch(API_URL, {
+            method: 'POST',
+            mode: 'no-cors', // สำหรับการบันทึก (POST) ใช้ no-cors ได้ถ้าไม่ต้องการรับ response กลับมาเช็ค
+            body: JSON.stringify(payload)
+          });
+          
+          alert("บันทึกข้อมูลเรียบร้อยแล้ว");
+          location.reload();
+        } catch (err) {
+          alert("เกิดข้อผิดพลาด");
+        }
       }
-    }
     
-    // เรียกโหลดสำนักงานแม่เมื่อเปิดหน้าเว็บ
+    // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
     document.addEventListener('DOMContentLoaded', loadParentOffices);
 
     
   </script>
 </body>
 </html>
+
 
 
 
