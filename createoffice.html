@@ -131,269 +131,67 @@
     </div>
   </div>
 
+  
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbz8zohztNMZnGpYzQ-vSL6Uj6AZKP9npCsOUC3zSAYJnzkB3yy1OKar2yasMxGmVv_G/exec";
-    let rawData = [];
-
-    window.onload = function() {
+    
+    // ฟังก์ชันดึงสำนักงานแม่มาใส่ Dropdown
+    async function loadParentOffices() {
       try {
-        const yearEl = document.getElementById('year');
-        if (yearEl) yearEl.textContent = new Date().getFullYear();
-        loadData();
-      } catch (e) {
-        console.error("Error in onload:", e);
-      }
-    };
-
-    async function loadData() {
-        const overlay = document.getElementById('loadingOverlay');
-        overlay.style.display = 'flex'; // แสดงม่าน
-        
-        try {
-          const response = await fetch(API_URL);
-          if (!response.ok) throw new Error('Network response was not ok');
-          rawData = await response.json();
-          
-          if (rawData.length > 0) {
-            populateArea();
-            console.log("Data Loaded successfully");
-          }
-        } catch (err) {
-          console.error("Error loading data:", err);
-          alert("ไม่สามารถดึงข้อมูลได้ กรุณาลอง Refresh หน้าจออีกครั้ง");
-        } finally {
-          // ปิดม่าน ไม่ว่าจะดึงข้อมูลสำเร็จหรือไม่
-          overlay.style.display = 'none';
-        }
-      }
-    
-    function populateArea() {
-      const areaSelect = document.getElementById('area');
-      areaSelect.innerHTML = '<option value="">— เลือกพื้นที่ —</option>';
-      const areas = [...new Set(rawData.map(item => item.area_thai))].filter(Boolean);
-      areas.forEach(a => areaSelect.add(new Option(a, a)));
-    }
-
-    function filterDropdown(level) {
-      const areaVal = document.getElementById('area').value;
-      const provVal = document.getElementById('prov').value;
-      const distVal = document.getElementById('dist').value;
-
-      const provSelect = document.getElementById('prov');
-      const distSelect = document.getElementById('dist');
-      const subdSelect = document.getElementById('subd');
-
-      if (level === 'prov') {
-        // Reset ตัวที่ตามมาทั้งหมด
-        provSelect.innerHTML = '<option value="">— เลือกจังหวัด —</option>';
-        distSelect.innerHTML = '<option value="">— เลือกอำเภอ —</option>';
-        subdSelect.innerHTML = '<option value="">— เลือกตำบล —</option>';
-        distSelect.disabled = true;
-        subdSelect.disabled = true;
-
-        if (areaVal) {
-          provSelect.disabled = false;
-          const filtered = rawData.filter(i => i.area_thai === areaVal);
-          const options = [...new Set(filtered.map(i => i.prov_thai))].filter(Boolean);
-          options.forEach(p => provSelect.add(new Option(p, p)));
-        } else {
-          provSelect.disabled = true;
-        }
-      } 
-      else if (level === 'dist') {
-        distSelect.innerHTML = '<option value="">— เลือกอำเภอ —</option>';
-        subdSelect.innerHTML = '<option value="">— เลือกตำบล —</option>';
-        subdSelect.disabled = true;
-
-        if (provVal) {
-          distSelect.disabled = false;
-          const filtered = rawData.filter(i => i.prov_thai === provVal);
-          const options = [...new Set(filtered.map(i => i.dist_thai))].filter(Boolean);
-          options.forEach(d => distSelect.add(new Option(d, d)));
-        } else {
-          distSelect.disabled = true;
-        }
-      } 
-      else if (level === 'subd') {
-        subdSelect.innerHTML = '<option value="">— เลือกตำบล —</option>';
-        if (distVal) {
-          subdSelect.disabled = false;
-          const filtered = rawData.filter(i => i.prov_thai === provVal && i.dist_thai === distVal);
-          const options = [...new Set(filtered.map(i => i.subd_thai))].filter(Boolean);
-          options.forEach(s => subdSelect.add(new Option(s, s)));
-        } else {
-          subdSelect.disabled = true;
-        }
-      }
-      updatePreview();
-    }
-
-    function getSelectedCodes() {
-      const areaVal = document.getElementById('area').value;
-      const provVal = document.getElementById('prov').value;
-      const distVal = document.getElementById('dist').value;
-      const subdVal = document.getElementById('subd').value;
-
-      if (!areaVal || !provVal || !distVal || !subdVal) return null;
-
-      return rawData.find(i => 
-        i.area_thai === areaVal && 
-        i.prov_thai === provVal && 
-        i.dist_thai === distVal && 
-        i.subd_thai === subdVal
-      );
-    }
-
-
-    // ลำดับความใหญ่ของสำนักงานเพื่อใช้เปรียบเทียบ
-    const sizeRank = { "XL": 5, "L": 4, "M": 3, "S": 2, "XS": 1 };
-    
-    async function updateHierDropdown() {
-      const sizeVal = document.getElementById('branSize').value;
-      const areaVal = document.getElementById('area').value;
-      const provVal = document.getElementById('prov').value;
-      const hierSelect = document.getElementById('branHier');
-    
-      // ถ้ายังเลือกข้อมูลไม่ครบ ให้ปิด Dropdown ไว้ก่อน
-      if (!sizeVal || !areaVal || !provVal) {
-        hierSelect.innerHTML = '<option value="">— กรุณาเลือกขนาดและพื้นที่ก่อน —</option>';
-        hierSelect.disabled = true;
-        return;
-      }
-    
-      hierSelect.disabled = false;
-      hierSelect.innerHTML = '<option value="">— กำลังโหลดข้อมูลต้นสังกัด... —</option>';
-    
-      try {
-        // ดึงข้อมูลสำนักงานทั้งหมดจาก Sheet (ใช้ Action getAllOffices ที่เราเคยทำในหน้า Hub)
-        const response = await fetch(`${API_URL}?action=getAllOffices`);
-        const allOffices = await response.json();
-    
-        // ตรรกะการกรอง: 
-        // 1. พื้นที่ (Area) และ จังหวัด (Prov) ต้องตรงกัน
-        // 2. ขนาด (Size) ต้องใหญ่กว่าตัวที่กำลังเลือกอยู่
-        const filtered = allOffices.filter(office => {
-          // หมายเหตุ: ในฐานข้อมูล bran_iden เราเก็บ prov_thai และ area_thai ไว้ (อ้างอิงจากโค้ดเดิม)
-          const isSameLocation = office.area === areaVal && office.prov === provVal;
-          const isBigger = sizeRank[office.bran_size] > sizeRank[sizeVal];
-          return isSameLocation && isBigger;
+        const resp = await fetch(`${API_URL}?action=getOffices`);
+        const list = await resp.json();
+        const select = document.getElementById('branHier');
+        select.innerHTML = '<option value="-">ไม่มี (เป็นสำนักงานแม่หลัก)</option>';
+        list.forEach(item => {
+          select.innerHTML += `<option value="${item.iden}">${item.name} (${item.iden})</option>`;
         });
-    
-        hierSelect.innerHTML = '<option value="">— ไม่มีต้นสังกัด —</option>';
-        filtered.forEach(o => {
-          // แสดงเป็น ชื่อสำนักงาน [รหัส] เพื่อให้คนเลือกง่าย แต่ค่าที่เก็บ (value) คือ bran_iden
-          hierSelect.add(new Option(`${o.bran_name} [${o.bran_size}]`, o.bran_iden));
-        });
-    
-      } catch (err) {
-        console.error("Error loading hierarchy:", err);
-        hierSelect.innerHTML = '<option value="">— โหลดข้อมูลผิดพลาด —</option>';
-      }
+      } catch (e) { console.log("ยังไม่มีข้อมูลสำนักงานเดิม"); }
     }
-
     
-    function updatePreview() {
-      const name = document.getElementById('branName').value || "—";
-      const house = document.getElementById('addrHouse').value;
-      const road = document.getElementById('addrRoad').value;
-      const zip = document.getElementById('zipCode').value;
-      
-      const prov = document.getElementById('prov').value;
-      const dist = document.getElementById('dist').value;
-      const subd = document.getElementById('subd').value;
-
-      document.getElementById('viewName').innerText = name;
-      
-      let fullAddr = [];
-      if (house) fullAddr.push(house);
-      if (road) {
-        let cleanRoad = road.replace("ถนน", "").replace("ถ.", "").trim();
-        if (cleanRoad && cleanRoad !== "-") fullAddr.push("ถนน" + cleanRoad);
-      }
-      
-      if (subd) {
-        const subdPrefix = (prov === "กรุงเทพมหานคร") ? "แขวง" : "ตำบล";
-        fullAddr.push(subdPrefix + subd);
-      }
-      if (dist) {
-        const distPrefix = (prov === "กรุงเทพมหานคร") ? "เขต" : "อำเภอ";
-        fullAddr.push(distPrefix + dist);
-      }
-      if (prov) {
-        const provPrefix = (prov === "กรุงเทพมหานคร") ? "" : "จังหวัด";
-        fullAddr.push(provPrefix + prov);
-      }
-      if (zip) fullAddr.push(zip);
-
-      // คั่นด้วยเว้นวรรคตามที่แจ้งครับ
-      document.getElementById('viewAddress').innerText = fullAddr.join(" ") || "—";
-
-      const codes = getSelectedCodes();
-      if (codes) {
-        const combinedCode = `${codes.area_code}${codes.prov_code}${codes.dist_code}${codes.subd_code}`;
-        document.getElementById('previewCode').innerText = combinedCode;
-        document.getElementById('saveBtn').disabled = (name === "" || name === "—");
-      } else {
-        document.getElementById('previewCode').innerText = "—";
-        document.getElementById('saveBtn').disabled = true;
-      }
-    }
-
-    document.getElementById('saveBtn').onclick = async function() {
+    // ฟังก์ชันบันทึกข้อมูล
+    async function saveData() {
       const user = document.getElementById('creaUser').value;
-      const tele = document.getElementById('creaTele').value;
       const size = document.getElementById('branSize').value;
-    
-      if(!user || !tele || !size) {
-        alert("กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน (ชื่อผู้ลงข้อมูล, เบอร์โทร และขนาดสำนักงาน)");
+      
+      if (!user || !size || size === "-") {
+        alert("กรุณากรอกข้อมูลให้ครบถ้วน");
         return;
       }
-    
-      const overlay = document.getElementById('loadingOverlay');
-      overlay.querySelector('.loading-text').innerText = "กำลังดำเนินการ...";
-      overlay.style.display = 'flex';
     
       const payload = {
         action: 'saveOffice',
         data: {
-          crea_user: user,
-          crea_tele: tele,
           bran_iden: document.getElementById('previewCode').innerText,
           bran_name: document.getElementById('branName').value,
           bran_addr: document.getElementById('viewAddress').innerText,
-          // ค่าที่เพิ่มใหม่
           bran_size: size,
-          bran_hier: document.getElementById('branHier').value, // จะได้เป็น bran_iden ของที่เลือก
-          bran_ware: document.getElementById('branWare').value, // TRUE หรือ FALSE
-          area: document.getElementById('area').value,
-          prov: document.getElementById('prov').value,
-          dist: document.getElementById('dist').value,
-          subd: document.getElementById('subd').value
+          bran_hier: document.getElementById('branHier').value,
+          bran_ware: document.getElementById('branWare').value
         }
       };
     
       try {
-        // เปลี่ยนวิธีส่งเพื่อรองรับ CORS และรับผลลัพธ์กลับมาเช็ค
-        const response = await fetch(API_URL, {
+        // ใช้ fetch แบบส่ง JSON ตรงๆ
+        await fetch(API_URL, {
           method: 'POST',
-          body: JSON.stringify(payload),
-          headers: {
-            'Content-Type': 'text/plain;charset=utf-8', 
-          },
+          body: JSON.stringify(payload)
         });
-      
-        // ถ้าใช้ no-cors จะเช็ค response.ok ไม่ได้ แต่ถ้าปรับเป็นแบบปกติจะเช็คได้
-        alert("ดำเนินการบันทึกข้อมูลเรียบร้อยแล้ว");
+        
+        alert("บันทึกข้อมูลสำเร็จ!");
         location.reload();
       } catch (err) {
-        console.error(err);
-        alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
-        overlay.style.display = 'none';
+        alert("บันทึกไม่สำเร็จ โปรดลองอีกครั้ง");
       }
+    }
+    
+    // เรียกโหลดสำนักงานแม่เมื่อเปิดหน้าเว็บ
+    document.addEventListener('DOMContentLoaded', loadParentOffices);
+
     
   </script>
 </body>
 </html>
+
 
 
 
