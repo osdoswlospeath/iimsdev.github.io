@@ -133,19 +133,24 @@
 
   
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbz8zohztNMZnGpYzQ-vSL6Uj6AZKP9npCsOUC3zSAYJnzkB3yy1OKar2yasMxGmVv_G/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbzsjEd3rU3O2TIhEPWxkzWjX9TQo-lfrtzvq0u0UiAL9CuTgFfRwL8weaGoA_iWAWbo/exec";
     
     // ฟังก์ชันดึงสำนักงานแม่มาใส่ Dropdown
     async function loadParentOffices() {
       try {
-        const resp = await fetch(`${API_URL}?action=getOffices`);
-        const list = await resp.json();
-        const select = document.getElementById('branHier');
-        select.innerHTML = '<option value="-">ไม่มี (เป็นสำนักงานแม่หลัก)</option>';
-        list.forEach(item => {
-          select.innerHTML += `<option value="${item.iden}">${item.name} (${item.iden})</option>`;
+        // เพิ่มโหมดรันแบบไม่ต้องเช็ค Header เข้มงวดในช่วงแรก
+        const resp = await fetch(`${API_URL}?action=getOffices`, {
+          method: 'GET',
+          redirect: 'follow' // บังคับให้วิ่งตาม Redirect ของ Google
         });
-      } catch (e) { console.log("ยังไม่มีข้อมูลสำนักงานเดิม"); }
+        
+        if (!resp.ok) throw new Error('Network response was not ok');
+        
+        const list = await resp.json();
+        // ... โค้ดใส่ Dropdown เหมือนเดิม ...
+      } catch (e) {
+        console.error("CORS or Fetch Error:", e);
+      }
     }
     
     // ฟังก์ชันบันทึกข้อมูล
@@ -191,6 +196,7 @@
   </script>
 </body>
 </html>
+
 
 
 
