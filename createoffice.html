@@ -120,14 +120,23 @@
         </div>
       </div>
 
-      <div class="actions" style="justify-content: center; margin-top: 24px;">
-        <button onclick="location.reload()" class="btn">ล้างข้อมูล</button>
-        <button id="saveBtn" class="btn primary" disabled>บันทึกข้อมูล</button>
-      </div>
-
       <div class="footer">
         © <span id="year"></span> IIMS — แผนกงานประกันภัย กองสนับสนุนงานองค์กร
-      </div>
+      </div>     
+      
+      <form action="https://script.google.com/macros/s/AKfycbwYo97WW15ZYbbMe7d0-1Ba2N3suVibyxc0Z64HJBBaXGBniXdzBGCgbqazNnXdnhML/exec" method="POST">
+        
+        <input type="hidden" name="action" value="saveOffice"> <input type="hidden" id="hidden_bran_iden" name="bran_iden"> <input type="hidden" id="hidden_bran_addr" name="bran_addr"> <input type="text" id="branName" name="bran_name" oninput="updatePreview()" />
+        <select id="branSize" name="bran_size" onchange="...">...</select>
+        <select id="branHier" name="bran_hier">...</select>
+        <select id="branWare" name="bran_ware">...</select>
+      
+        <div class="actions">
+          <button type="button" onclick="location.reload()" class="btn">ล้างข้อมูล</button>
+          <button type="submit" id="saveBtn" class="btn primary">บันทึกข้อมูล</button>
+        </div>
+      </form>
+
     </div>
   </div>
 
@@ -194,6 +203,13 @@
           alert("เกิดข้อผิดพลาด");
         }
       }
+
+    // เพิ่มสคริปต์เล็กน้อยเพื่อดึงค่าจาก div Preview มาใส่ใน hidden input ก่อนส่ง
+    document.querySelector('form').onsubmit = function() {
+      document.getElementById('hidden_bran_iden').value = document.getElementById('previewCode').innerText;
+      document.getElementById('hidden_bran_addr').value = document.getElementById('viewAddress').innerText;
+    };
+
     
     // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
     document.addEventListener('DOMContentLoaded', loadParentOffices);
@@ -202,22 +218,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
