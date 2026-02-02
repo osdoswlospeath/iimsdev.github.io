@@ -210,6 +210,24 @@
       document.getElementById('hidden_bran_addr').value = document.getElementById('viewAddress').innerText;
     };
 
+      // รับข้อมูลที่ส่งมาจาก GAS (บรรทัดนี้คือหัวใจ)
+    const masterData = <?!= masterData ?>;
+  
+    document.addEventListener('DOMContentLoaded', function() {
+      const overlay = document.getElementById('loadingOverlay');
+      
+      try {
+        // นำ masterData ที่ได้มาไปใส่ใน Dropdown พื้นที่/จังหวัด (ใช้ Logic เดิมของคุณ)
+        if (masterData) {
+          initAreaDropdowns(masterData); 
+        }
+      } catch (e) {
+        console.error("Error processing data:", e);
+      } finally {
+        // ปิดหน้ากาก Loading ทันที เพราะข้อมูลมาพร้อมกับหน้าเว็บแล้ว
+        if (overlay) overlay.style.display = 'none';
+      }
+    });
     
     // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
     document.addEventListener('DOMContentLoaded', loadParentOffices);
@@ -218,4 +236,5 @@
   </script>
 </body>
 </html>
+
 
