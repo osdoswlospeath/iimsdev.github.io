@@ -145,28 +145,28 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbwYo97WW15ZYbbMe7d0-1Ba2N3suVibyxc0Z64HJBBaXGBniXdzBGCgbqazNnXdnhML/exec";
     
     // ฟังก์ชันดึงสำนักงานแม่มาใส่ Dropdown
-    async function loadParentOffices() {
-      try {
-        // ต้องใส่ redirect: 'follow' เพื่อแก้ปัญหา CORS ของ Google Script
-        const resp = await fetch(`${API_URL}?action=getOffices`, {
-          method: 'GET',
-          redirect: 'follow'
-        });
-        
-        const list = await resp.json();
-        const select = document.getElementById('branHier');
-        select.innerHTML = '<option value="-">ไม่มี (เป็นสำนักงานแม่หลัก)</option>';
-        
-        if (Array.isArray(list)) {
-          list.forEach(item => {
-            select.innerHTML += `<option value="${item.iden}">${item.name} (${item.iden})</option>`;
-          });
-        }
-      } catch (e) {
-        console.error("CORS Error:", e);
-      }
-    }
+ sync function loadAreaData() { // เปลี่ยนชื่อให้ตรงความหมาย
+  const overlay = document.getElementById('loadingOverlay');
+  try {
+    const resp = await fetch(`${API_URL}?action=getAreaData`, { // เรียก action ใหม่
+      method: 'GET',
+      redirect: 'follow'
+    });
+    const data = await resp.json();
     
+    // ตรงนี้ต้องส่ง data ไปให้ฟังก์ชันใน script.js (ที่คุณมีอยู่แล้ว) 
+    // เพื่อกระจายข้อมูลลง Dropdown พื้นที่/จังหวัด/อำเภอ [cite: 4, 5, 6]
+    if (typeof initAreaDropdowns === "function") {
+      initAreaDropdowns(data); 
+    }
+
+  } catch (e) {
+    console.error("Fetch Error:", e);
+  } finally {
+    if (overlay) overlay.style.display = 'none'; // ปิด Loading เสมอ 
+  }
+}
+        
     // ฟังก์ชันบันทึกข้อมูล
     async function saveData() {
       const user = document.getElementById('creaUser').value;
@@ -218,3 +218,4 @@
   </script>
 </body>
 </html>
+
