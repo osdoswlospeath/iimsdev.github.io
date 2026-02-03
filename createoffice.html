@@ -1,75 +1,92 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <base target="_top">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>IIMS | สร้างรหัสสำนักงาน</title>
   <link rel="stylesheet" href="style.css">
 </head>
-  
-<div id="header-placeholder"></div>
-
-<script src="script.js"></script>
-  
 <body>
 
-  <div id="loadingOverlay">
-    <div class="spinner"></div>
-    <div class="loading-text">กำลังโหลดข้อมูลพื้นที่...</div>
-  </div>
-  
+<div id="header-placeholder"></div>
+<script src="script.js"></script>
 
-  
-  <div class="container">
-    <div class="card">
-      <h2>สร้างรหัสสำนักงาน</h2>
-      <p class="notice">ระบุชื่อและที่ตั้งสำนักงาน ระบบจะสร้างข้อมูลรหัสให้อัตโนมัติ</p>
+<!-- Loading Overlay -->
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">กำลังโหลดข้อมูลพื้นที่...</div>
+</div>
 
+<div class="container">
+  <div class="card">
+    <h2>สร้างรหัสสำนักงาน</h2>
+    <p class="notice">ระบุชื่อและที่ตั้งสำนักงาน ระบบจะสร้างข้อมูลรหัสให้อัตโนมัติ</p>
+
+    <!-- FORM เดียว ครอบทุก input (ไม่ซ้ำ ID) -->
+    <form id="officeForm"
+          action="https://script.google.com/macros/s/AKfycbwYo97WW15ZYbbMe7d0-1Ba2N3suVibyxc0Z64HJBBaXGBniXdzBGCgbqazNnXdnhML/exec"
+          method="POST"
+          target="hidden_iframe">
+
+      <input type="hidden" name="action" value="saveOffice">
+      <input type="hidden" name="bran_iden" id="hidden_bran_iden">
+      <input type="hidden" name="bran_addr" id="hidden_bran_addr">
+      <input type="hidden" name="area_code" id="hidden_area_code">
+      <input type="hidden" name="prov_code" id="hidden_prov_code">
+      <input type="hidden" name="dist_code" id="hidden_dist_code">
+      <input type="hidden" name="subd_code" id="hidden_subd_code">
+      <input type="hidden" name="subd_thai" id="hidden_subd_thai">
+      <input type="hidden" name="dist_thai" id="hidden_dist_thai">
+      <input type="hidden" name="prov_thai" id="hidden_prov_thai">
+
+      <!-- 1. ชื่อสำนักงาน -->
       <div class="form-row">
         <label>ชื่อสำนักงาน</label>
-        <input type="text" id="branName" placeholder="เช่น การไฟฟ้าส่วนภูมิภาค สาขาเมืองเชียงใหม่" oninput="updatePreview()" />
+        <input type="text" id="branName" name="bran_name" required oninput="updatePreview()">
       </div>
 
+      <!-- 2-4 ที่อยู่ -->
       <div class="grid">
         <div class="form-row">
           <label>เลขที่ / อาคาร / หมู่</label>
-          <input type="text" id="addrHouse" placeholder="เช่น เลขที่ 123/4 หมู่ 5" oninput="updatePreview()" />
+          <input type="text" id="addrHouse" name="addr_house" oninput="updatePreview()">
         </div>
         <div class="form-row">
           <label>ซอย / ถนน</label>
-          <input type="text" id="addrRoad" placeholder="เช่น ถนนพหลโยธิน หรือ - " oninput="updatePreview()" />
+          <input type="text" id="addrRoad" name="addr_road" oninput="updatePreview()">
         </div>
         <div class="form-row">
           <label>รหัสไปรษณีย์</label>
-          <input type="text" id="zipCode" placeholder="เช่น 10110" maxlength="5" oninput="updatePreview()" />
+          <input type="text" id="zipCode" name="zip_code" maxlength="5" oninput="updatePreview()">
         </div>
       </div>
 
+      <!-- 5-8 พื้นที่ -->
       <div class="grid">
         <div class="form-row">
           <label>พื้นที่</label>
-          <select id="area" onchange="filterDropdown('prov')"><option value="">— เลือกพื้นที่ —</option></select>
+          <select id="area" onchange="filterDropdown('prov')" required></select>
         </div>
         <div class="form-row">
           <label>จังหวัด</label>
-          <select id="prov" disabled onchange="filterDropdown('dist')"><option value="">— เลือกจังหวัด —</option></select>
+          <select id="prov" onchange="filterDropdown('dist')" disabled required></select>
         </div>
         <div class="form-row">
-          <label>อำเภอ/เขต</label>
-          <select id="dist" disabled onchange="filterDropdown('subd')"><option value="">— เลือกอำเภอ —</option></select>
+          <label>อำเภอ</label>
+          <select id="dist" onchange="filterDropdown('subd')" disabled required></select>
         </div>
         <div class="form-row">
-          <label>ตำบล/แขวง</label>
-          <select id="subd" disabled onchange="updatePreview()"><option value="">— เลือกตำบล —</option></select>
+          <label>ตำบล</label>
+          <select id="subd" disabled required onchange="updatePreview()"></select>
         </div>
       </div>
 
+      <!-- 9-11 -->
       <div class="grid">
         <div class="form-row">
           <label>ขนาดสำนักงาน</label>
-          <select id="branSize" onchange="updateHierDropdown(); updatePreview();">
-            <option value="">— เลือกขนาด —</option>
+          <select id="branSize" name="bran_size" required onchange="updateHierDropdown(); updatePreview();">
+            <option value="">— เลือก —</option>
             <option value="XL">XL</option>
             <option value="L">L</option>
             <option value="M">M</option>
@@ -77,164 +94,81 @@
             <option value="XS">XS</option>
           </select>
         </div>
-      
         <div class="form-row">
           <label>สำนักงานต้นสังกัด</label>
-          <select id="branHier" disabled onchange="updatePreview()">
-            <option value="">— กรุณาเลือกขนาดและพื้นที่ก่อน —</option>
-          </select>
+          <select id="branHier" name="bran_hier" disabled></select>
         </div>
-      
         <div class="form-row">
-          <label>มีคลังพัสดุ</label>
-          <select id="branWare" onchange="updatePreview()">
+          <label>คลังพัสดุ</label>
+          <select id="branWare" name="bran_ware">
             <option value="FALSE">ไม่มี</option>
             <option value="TRUE">มี</option>
           </select>
         </div>
       </div>
-      
-      <div class="preview" style="text-align: left; padding: 20px;">
-        <div style="margin-bottom: 15px;">
-          <strong style="color:var(--purple);">1. ชื่อสำนักงาน:</strong>
-          <div id="viewName" style="font-size: 1.1rem; margin-top: 5px;">—</div>
-        </div>
-        <div style="margin-bottom: 15px;">
-          <strong style="color:var(--purple);">2. รหัสสำนักงาน:</strong><br>
-          <div id="previewCode" class="badge">—</div>
-        </div>
-        <div>
-          <strong style="color:var(--purple);">3. ที่อยู่:</strong>
-          <div id="viewAddress" style="font-size: 0.95rem; margin-top: 5px; line-height: 1.6;">—</div>
-        </div>
-      </div>
 
+      <!-- 12-13 -->
       <div class="grid">
         <div class="form-row">
-          <label>ชื่อ-นามสกุล ผู้ลงข้อมูล</label>
-          <input type="text" id="creaUser" placeholder="ระบุชื่อผู้บันทึก" />
+          <label>ผู้ลงข้อมูล</label>
+          <input type="text" id="creaUser" name="crea_user" required>
         </div>
         <div class="form-row">
-          <label>เบอร์โทรศัพท์</label>
-          <input type="tel" id="creaTele" placeholder="เช่น 081-234-5678 หรือ (12)34567" />
+          <label>เบอร์ติดต่อ</label>
+          <input type="tel" id="creaTele" name="crea_tele" required>
         </div>
       </div>
 
-      <div class="footer">
-        © <span id="year"></span> IIMS — แผนกงานประกันภัย กองสนับสนุนงานองค์กร
-      </div>     
-      
-      <form action="https://script.google.com/macros/s/AKfycbwYo97WW15ZYbbMe7d0-1Ba2N3suVibyxc0Z64HJBBaXGBniXdzBGCgbqazNnXdnhML/exec" method="POST">
-        
-        <input type="hidden" name="action" value="saveOffice"> <input type="hidden" id="hidden_bran_iden" name="bran_iden"> <input type="hidden" id="hidden_bran_addr" name="bran_addr"> <input type="text" id="branName" name="bran_name" oninput="updatePreview()" />
-        <select id="branSize" name="bran_size" onchange="...">...</select>
-        <select id="branHier" name="bran_hier">...</select>
-        <select id="branWare" name="bran_ware">...</select>
-      
-        <div class="actions">
-          <button type="button" onclick="location.reload()" class="btn">ล้างข้อมูล</button>
-          <button type="submit" id="saveBtn" class="btn primary">บันทึกข้อมูล</button>
-        </div>
-      </form>
+      <!-- Preview -->
+      <div class="preview">
+        <div><strong>ชื่อ:</strong> <span id="viewName">—</span></div>
+        <div><strong>รหัส:</strong> <span id="previewCode">—</span></div>
+        <div><strong>ที่อยู่:</strong> <span id="viewAddress">—</span></div>
+      </div>
 
-    </div>
+      <div class="actions">
+        <button type="button" onclick="location.reload()">ล้างข้อมูล</button>
+        <button type="submit">บันทึกข้อมูล</button>
+      </div>
+
+    </form>
+    <iframe name="hidden_iframe" style="display:none"></iframe>
   </div>
+</div>
 
-  
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwYo97WW15ZYbbMe7d0-1Ba2N3suVibyxc0Z64HJBBaXGBniXdzBGCgbqazNnXdnhML/exec";
-    
-    // ฟังก์ชันดึงสำนักงานแม่มาใส่ Dropdown
- sync function loadAreaData() { // เปลี่ยนชื่อให้ตรงความหมาย
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbwYo97WW15ZYbbMe7d0-1Ba2N3suVibyxc0Z64HJBBaXGBniXdzBGCgbqazNnXdnhML/exec';
+
+async function loadAreaMaster() {
   const overlay = document.getElementById('loadingOverlay');
   try {
-    const resp = await fetch(`${API_URL}?action=getAreaData`, { // เรียก action ใหม่
-      method: 'GET',
-      redirect: 'follow'
-    });
-    const data = await resp.json();
-    
-    // ตรงนี้ต้องส่ง data ไปให้ฟังก์ชันใน script.js (ที่คุณมีอยู่แล้ว) 
-    // เพื่อกระจายข้อมูลลง Dropdown พื้นที่/จังหวัด/อำเภอ [cite: 4, 5, 6]
-    if (typeof initAreaDropdowns === "function") {
-      initAreaDropdowns(data); 
-    }
-
+    const r = await fetch(API_URL + '?action=getAreaMaster');
+    const data = await r.json();
+    if (typeof initAreaDropdowns === 'function') initAreaDropdowns(data);
   } catch (e) {
-    console.error("Fetch Error:", e);
+    console.error(e);
   } finally {
-    if (overlay) overlay.style.display = 'none'; // ปิด Loading เสมอ 
+    overlay.style.display = 'none';
   }
 }
-        
-    // ฟังก์ชันบันทึกข้อมูล
-    async function saveData() {
-      const user = document.getElementById('creaUser').value;
-      const size = document.getElementById('branSize').value;
-      
-      if (!user || !size || size === "-") {
-        alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-        return;
-      }
-    
-    const payload = {
-        action: 'saveOffice',
-        data: {
-          bran_iden: document.getElementById('previewCode').innerText,
-          bran_name: document.getElementById('branName').value,
-          bran_addr: document.getElementById('viewAddress').innerText,
-          bran_size: document.getElementById('branSize').value,
-          bran_hier: document.getElementById('branHier').value,
-          bran_ware: document.getElementById('branWare').value
-        }
-      };
-    
-      try {
-          // การ POST ไปยัง GAS ต้องใช้ Content-Type: text/plain เพื่อเลี่ยง CORS preflight
-          await fetch(API_URL, {
-            method: 'POST',
-            mode: 'no-cors', // สำหรับการบันทึก (POST) ใช้ no-cors ได้ถ้าไม่ต้องการรับ response กลับมาเช็ค
-            body: JSON.stringify(payload)
-          });
-          
-          alert("บันทึกข้อมูลเรียบร้อยแล้ว");
-          location.reload();
-        } catch (err) {
-          alert("เกิดข้อผิดพลาด");
-        }
-      }
 
-    // เพิ่มสคริปต์เล็กน้อยเพื่อดึงค่าจาก div Preview มาใส่ใน hidden input ก่อนส่ง
-    document.querySelector('form').onsubmit = function() {
-      document.getElementById('hidden_bran_iden').value = document.getElementById('previewCode').innerText;
-      document.getElementById('hidden_bran_addr').value = document.getElementById('viewAddress').innerText;
-    };
+// ก่อน submit รวมค่าที่ต้องคำนวณ
+const form = document.getElementById('officeForm');
+form.addEventListener('submit', () => {
+  document.getElementById('hidden_bran_iden').value = document.getElementById('previewCode').innerText;
+  document.getElementById('hidden_bran_addr').value = document.getElementById('viewAddress').innerText;
 
-      // รับข้อมูลที่ส่งมาจาก GAS (บรรทัดนี้คือหัวใจ)
-    const masterData = <?!= masterData ?>;
-  
-    document.addEventListener('DOMContentLoaded', function() {
-      const overlay = document.getElementById('loadingOverlay');
-      
-      try {
-        // นำ masterData ที่ได้มาไปใส่ใน Dropdown พื้นที่/จังหวัด (ใช้ Logic เดิมของคุณ)
-        if (masterData) {
-          initAreaDropdowns(masterData); 
-        }
-      } catch (e) {
-        console.error("Error processing data:", e);
-      } finally {
-        // ปิดหน้ากาก Loading ทันที เพราะข้อมูลมาพร้อมกับหน้าเว็บแล้ว
-        if (overlay) overlay.style.display = 'none';
-      }
-    });
-    
-    // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
-    document.addEventListener('DOMContentLoaded', loadParentOffices);
+  document.getElementById('hidden_area_code').value = area.value;
+  document.getElementById('hidden_prov_code').value = prov.value;
+  document.getElementById('hidden_dist_code').value = dist.value;
+  document.getElementById('hidden_subd_code').value = subd.value;
 
-    
-  </script>
+  document.getElementById('hidden_subd_thai').value = subd.options[subd.selectedIndex].text;
+  document.getElementById('hidden_dist_thai').value = dist.options[dist.selectedIndex].text;
+  document.getElementById('hidden_prov_thai').value = prov.options[prov.selectedIndex].text;
+});
+
+document.addEventListener('DOMContentLoaded', loadAreaMaster);
+</script>
 </body>
 </html>
-
-
