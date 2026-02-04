@@ -125,8 +125,6 @@
         <div><strong>รหัสสำนักงาน:</strong> <span id="previewCode">—</span></div>
         <div><strong>ที่อยู่สำนักงาน:</strong> <span id="viewAddress">—</span></div>
       </div>
-        <div><strong>รหัส:</strong> <span id="previewCode">—</span></div>
-        <div><strong>ที่อยู่:</strong> <span id="viewAddress">—</span></div>
       </div>
 
       <div class="actions">
@@ -204,9 +202,9 @@ document.addEventListener('DOMContentLoaded', loadAreaMaster);
   const addressParts = [
     house,
     road,
-    subdText ? 'ต.' + subdText : '',
-    distText ? 'อ.' + distText : '',
-    provText ? 'จ.' + provText : '',
+    subdText ? 'ตำบล' + subdText : '',
+    distText ? 'อำเถอ' + distText : '',
+    provText ? 'จังหวัด' + provText : '',
     zip ? 'รหัสไปรษณีย์ ' + zip : ''
   ].filter(v => v.trim() !== '');
 
@@ -366,6 +364,7 @@ async function updateHierDropdown() {
 </script>
 </body>
 </html>
+
 
 
 
