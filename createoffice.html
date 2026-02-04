@@ -65,19 +65,30 @@
       <div class="grid">
         <div class="form-row">
           <label>พื้นที่</label>
-          <select id="area" onchange="filterDropdown('prov')" required></select>
+          <select id="area" onchange="filterDropdown('prov')">
+            <option value="">— เลือกพื้นที่ —</option>
+          </select>
         </div>
+      
         <div class="form-row">
           <label>จังหวัด</label>
-          <select id="prov" onchange="filterDropdown('dist')" disabled required></select>
+          <select id="prov" onchange="filterDropdown('dist')" disabled>
+            <option value="">— เลือกจังหวัด —</option>
+          </select>
         </div>
+      
         <div class="form-row">
           <label>อำเภอ</label>
-          <select id="dist" onchange="filterDropdown('subd')" disabled required></select>
+          <select id="dist" onchange="filterDropdown('subd')" disabled>
+            <option value="">— เลือกอำเภอ —</option>
+          </select>
         </div>
+      
         <div class="form-row">
           <label>ตำบล</label>
-          <select id="subd" disabled required onchange="updatePreview()"></select>
+          <select id="subd" onchange="updatePreview()" disabled>
+            <option value="">— เลือกตำบล —</option>
+          </select>
         </div>
       </div>
 
@@ -337,6 +348,7 @@ async function updateHierDropdown() {
 </script>
 </body>
 </html>
+
 
 
 
