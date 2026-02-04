@@ -360,10 +360,20 @@ async function updateHierDropdown() {
     hierSel.innerHTML = '<option value=\"\">— ข้อมูลไม่ครบถ้วน —</option>';
   }
 }
+
+document.querySelector('form').addEventListener('submit', function () {
+  document.getElementById('hidden_bran_iden').value =
+    document.getElementById('previewCode').innerText.trim();
+
+  document.getElementById('hidden_bran_addr').value =
+    document.getElementById('viewAddress').innerText.trim();
+});
+
   
 </script>
 </body>
 </html>
+
 
 
 
