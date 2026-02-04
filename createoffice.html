@@ -264,14 +264,16 @@ function filterDropdown(level) {
     dist.disabled = true;
     subd.disabled = true;
 
-    const seen = {};
+    const seen = new Set();
+
     AREA_DATA.forEach(r => {
       if (
         r.area_code === area.value &&
-        r.prov_code && r.prov_thai &&     // ❗ กันช่องว่าง
-        !seen[r.prov_code]
+        r.prov_code && r.prov_thai &&
+        r.prov_code.toString().trim() !== '' &&
+        !seen.has(r.prov_code)
       ) {
-        seen[r.prov_code] = true;
+        seen.add(r.prov_code);
         prov.add(new Option(r.prov_thai, r.prov_code));
       }
     });
@@ -285,28 +287,35 @@ function filterDropdown(level) {
     dist.disabled = false;
     subd.disabled = true;
 
-    const seen = {};
+    const seen = new Set();
+
     AREA_DATA.forEach(r => {
       if (
-        r.prov_code === prov.value &&
-        r.dist_code && r.dist_thai &&     // ❗ กันช่องว่าง
-        !seen[r.dist_code]
+        r.area_code === area.value &&
+        r.prov_code === prov.value &&          // ✅ ชั้นที่ 1
+        r.dist_code && r.dist_thai &&
+        r.dist_code.toString().trim() !== '' &&
+        !seen.has(r.dist_code)
       ) {
-        seen[r.dist_code] = true;
+        seen.add(r.dist_code);
         dist.add(new Option(r.dist_thai, r.dist_code));
       }
     });
   }
 
-  /* ===== ตำบล (แกนหลักของปัญหา) ===== */
+  /* ===== ตำบล (แก้ตาม root cause จริง) ===== */
   if (level === 'subd') {
     subd.innerHTML = '<option value="">— เลือกตำบล —</option>';
     subd.disabled = false;
 
     AREA_DATA.forEach(r => {
       if (
-        r.dist_code === dist.value &&     // ✅ row เดียวกันเท่านั้น
-        r.subd_code && r.subd_thai        // ❗ กันช่องว่าง
+        r.area_code === area.value &&
+        r.prov_code === prov.value &&          // ✅ กรองชั้นที่ 1
+        r.dist_code === dist.value &&          // ✅ กรองชั้นที่ 2
+        r.subd_code && r.subd_thai &&
+        r.subd_code.toString().trim() !== '' &&
+        r.subd_thai.toString().trim() !== ''
       ) {
         subd.add(new Option(r.subd_thai, r.subd_code));
       }
@@ -364,6 +373,7 @@ async function updateHierDropdown() {
 </script>
 </body>
 </html>
+
 
 
 
