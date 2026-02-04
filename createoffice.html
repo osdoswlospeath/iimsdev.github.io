@@ -172,6 +172,200 @@ form.addEventListener('submit', () => {
 });
 
 document.addEventListener('DOMContentLoaded', loadAreaMaster);
+
+  
+  function updatePreview() {
+  const name = document.getElementById('branName')?.value || '';
+
+  const house = document.getElementById('addrHouse')?.value || '';
+  const road  = document.getElementById('addrRoad')?.value || '';
+  const zip   = document.getElementById('zipCode')?.value || '';
+
+  const areaSel = document.getElementById('area');
+  const provSel = document.getElementById('prov');
+  const distSel = document.getElementById('dist');
+  const subdSel = document.getElementById('subd');
+
+  const areaCode = areaSel?.value || '';
+  const provCode = provSel?.value || '';
+  const distCode = distSel?.value || '';
+  const subdCode = subdSel?.value || '';
+
+  const subdText = subdSel?.selectedOptions[0]?.text || '';
+  const distText = distSel?.selectedOptions[0]?.text || '';
+  const provText = provSel?.selectedOptions[0]?.text || '';
+
+  /* ===== bran_iden ===== */
+  const branIden = [areaCode, provCode, distCode, subdCode]
+    .filter(v => v !== '')
+    .join('');
+
+  /* ===== bran_addr ===== */
+  const addressParts = [
+    house,
+    road,
+    subdText ? 'ต.' + subdText : '',
+    distText ? 'อ.' + distText : '',
+    provText ? 'จ.' + provText : '',
+    zip ? 'รหัสไปรษณีย์ ' + zip : ''
+  ].filter(v => v.trim() !== '');
+
+  const address = addressParts.join(' ');
+
+  /* ===== Update Preview ===== */
+  document.getElementById('viewName').innerText = name || '—';
+  document.getElementById('previewCode').innerText = branIden || '—';
+  document.getElementById('viewAddress').innerText = address || '—';
+}
+
+let AREA_DATA = [];
+
+function initAreaDropdowns(data) {
+  console.log('AREA MASTER LOADED:', data.length);
+
+  AREA_DATA = data;
+
+  const areaSel = document.getElementById('area');
+  areaSel.innerHTML = '<option value="">— เลือกพื้นที่ —</option>';
+
+  const seen = {};
+
+  data.forEach(r => {
+    if (!seen[r.area_code]) {
+      seen[r.area_code] = true;
+      const opt = document.createElement('option');
+      opt.value = r.area_code;
+      opt.text = r.area_thai || r.area_code;
+      areaSel.appendChild(opt);
+    }
+  });
+}
+
+function filterDropdown(level) {
+  const area = document.getElementById('area');
+  const prov = document.getElementById('prov');
+  const dist = document.getElementById('dist');
+  const subd = document.getElementById('subd');
+
+  /* ===== จังหวัด ===== */
+  if (level === 'prov') {
+    prov.innerHTML = '<option value="">— เลือกจังหวัด —</option>';
+    dist.innerHTML = '<option value="">— เลือกอำเภอ —</option>';
+    subd.innerHTML = '<option value="">— เลือกตำบล —</option>';
+
+    prov.disabled = false;
+    dist.disabled = true;
+    subd.disabled = true;
+
+    const seen = new Set();
+
+    AREA_DATA.forEach(r => {
+      if (
+        r.area_code === area.value &&
+        r.prov_code && r.prov_thai &&
+        r.prov_code.toString().trim() !== '' &&
+        !seen.has(r.prov_code)
+      ) {
+        seen.add(r.prov_code);
+        prov.add(new Option(r.prov_thai, r.prov_code));
+      }
+    });
+  }
+
+  /* ===== อำเภอ ===== */
+  if (level === 'dist') {
+    dist.innerHTML = '<option value="">— เลือกอำเภอ —</option>';
+    subd.innerHTML = '<option value="">— เลือกตำบล —</option>';
+
+    dist.disabled = false;
+    subd.disabled = true;
+
+    const seen = new Set();
+
+    AREA_DATA.forEach(r => {
+      if (
+        r.area_code === area.value &&
+        r.prov_code === prov.value &&          // ✅ ชั้นที่ 1
+        r.dist_code && r.dist_thai &&
+        r.dist_code.toString().trim() !== '' &&
+        !seen.has(r.dist_code)
+      ) {
+        seen.add(r.dist_code);
+        dist.add(new Option(r.dist_thai, r.dist_code));
+      }
+    });
+  }
+
+  /* ===== ตำบล (แก้ตาม root cause จริง) ===== */
+  if (level === 'subd') {
+    subd.innerHTML = '<option value="">— เลือกตำบล —</option>';
+    subd.disabled = false;
+
+    AREA_DATA.forEach(r => {
+      if (
+        r.area_code === area.value &&
+        r.prov_code === prov.value &&          // ✅ กรองชั้นที่ 1
+        r.dist_code === dist.value &&          // ✅ กรองชั้นที่ 2
+        r.subd_code && r.subd_thai &&
+        r.subd_code.toString().trim() !== '' &&
+        r.subd_thai.toString().trim() !== ''
+      ) {
+        subd.add(new Option(r.subd_thai, r.subd_code));
+      }
+    });
+  }
+
+  updatePreview();
+}
+  
+async function updateHierDropdown() {
+  const size = document.getElementById('branSize').value;
+  const hierSel = document.getElementById('branHier');
+
+  hierSel.innerHTML = '';
+  hierSel.disabled = true;
+
+  // XL → ไม่มีสังกัด
+  if (size === 'XL' || !size) {
+    hierSel.innerHTML = '<option value=\"\">— ไม่มีสังกัด —</option>';
+    return;
+  }
+
+  const area = document.getElementById('area').value;
+  const prov = document.getElementById('prov').value;
+
+  if (!area || !prov) {
+    hierSel.innerHTML = '<option value=\"\">— เลือกพื้นที่/จังหวัดก่อน —</option>';
+    return;
+  }
+
+  try {
+    const r = await fetch(
+      API_URL + '?action=getOffices'
+      + '&area_code=' + area
+      + '&prov_code=' + prov
+    );
+    const list = await r.json();
+
+    hierSel.innerHTML = '<option value=\"\">— เลือกสำนักงานต้นสังกัด —</option>';
+
+    list.forEach(o => {
+      const opt = document.createElement('option');
+      opt.value = o.iden;
+      opt.text = o.name;
+      hierSel.appendChild(opt);
+    });
+
+    hierSel.disabled = false;
+  } catch (e) {
+    console.error('load hier error', e);
+    hierSel.innerHTML = '<option value=\"\">— โหลดข้อมูลไม่สำเร็จ —</option>';
+  }
+}
+  
 </script>
 </body>
 </html>
+
+
+
