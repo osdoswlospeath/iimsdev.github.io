@@ -254,44 +254,60 @@ function filterDropdown(level) {
   const dist = document.getElementById('dist');
   const subd = document.getElementById('subd');
 
+  /* ===== จังหวัด ===== */
   if (level === 'prov') {
     prov.innerHTML = '<option value="">— เลือกจังหวัด —</option>';
     dist.innerHTML = '<option value="">— เลือกอำเภอ —</option>';
     subd.innerHTML = '<option value="">— เลือกตำบล —</option>';
+
     prov.disabled = false;
     dist.disabled = true;
     subd.disabled = true;
 
     const seen = {};
     AREA_DATA.forEach(r => {
-      if (r.area_code === area.value && !seen[r.prov_code]) {
+      if (
+        r.area_code === area.value &&
+        r.prov_code && r.prov_thai &&     // ❗ กันช่องว่าง
+        !seen[r.prov_code]
+      ) {
         seen[r.prov_code] = true;
         prov.add(new Option(r.prov_thai, r.prov_code));
       }
     });
   }
 
+  /* ===== อำเภอ ===== */
   if (level === 'dist') {
     dist.innerHTML = '<option value="">— เลือกอำเภอ —</option>';
     subd.innerHTML = '<option value="">— เลือกตำบล —</option>';
+
     dist.disabled = false;
     subd.disabled = true;
 
     const seen = {};
     AREA_DATA.forEach(r => {
-      if (r.prov_code === prov.value && !seen[r.dist_code]) {
+      if (
+        r.prov_code === prov.value &&
+        r.dist_code && r.dist_thai &&     // ❗ กันช่องว่าง
+        !seen[r.dist_code]
+      ) {
         seen[r.dist_code] = true;
         dist.add(new Option(r.dist_thai, r.dist_code));
       }
     });
   }
 
+  /* ===== ตำบล (แกนหลักของปัญหา) ===== */
   if (level === 'subd') {
     subd.innerHTML = '<option value="">— เลือกตำบล —</option>';
     subd.disabled = false;
 
     AREA_DATA.forEach(r => {
-      if (r.dist_code === dist.value) {
+      if (
+        r.dist_code === dist.value &&     // ✅ row เดียวกันเท่านั้น
+        r.subd_code && r.subd_thai        // ❗ กันช่องว่าง
+      ) {
         subd.add(new Option(r.subd_thai, r.subd_code));
       }
     });
@@ -348,6 +364,7 @@ async function updateHierDropdown() {
 </script>
 </body>
 </html>
+
 
 
 
