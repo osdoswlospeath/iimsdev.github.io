@@ -42,7 +42,7 @@
       <!-- 1. ชื่อสำนักงาน -->
       <div class="form-row">
         <label>ชื่อสำนักงาน</label>
-        <input type="text" id="branName" name="bran_name" required placeholder="-เช่น สำนักงานการไฟฟ้า สาขาลาดยาว เป็นต้น-" oninput="updatePreview()">
+        <input type="text" id="branName" name="bran_name" required placeholder="-เช่น สำนักงานการไฟฟ้าส่วนภูมิภาค สาขาลาดยาว เป็นต้น-" oninput="updatePreview()">
       </div>
 
       <!-- 2-4 ที่อยู่ -->
@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', loadAreaMaster);
     house,
     road,
     subdText ? 'ตำบล' + subdText : '',
-    distText ? 'อำเถอ' + distText : '',
+    distText ? 'อำเภอ' + distText : '',
     provText ? 'จังหวัด' + provText : '',
     zip ? 'รหัสไปรษณีย์ ' + zip : ''
   ].filter(v => v.trim() !== '');
@@ -364,6 +364,7 @@ async function updateHierDropdown() {
 </script>
 </body>
 </html>
+
 
 
 
