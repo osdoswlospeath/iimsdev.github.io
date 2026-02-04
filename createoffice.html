@@ -214,8 +214,53 @@ document.addEventListener('DOMContentLoaded', loadAreaMaster);
   document.getElementById('viewAddress').innerText = address || '—';
 }
 
+async function updateHierDropdown() {
+  const size = document.getElementById('branSize').value;
+  const hierSel = document.getElementById('branHier');
+
+  hierSel.innerHTML = '';
+  hierSel.disabled = true;
+
+  // XL → ไม่มีสังกัด
+  if (size === 'XL' || !size) {
+    hierSel.innerHTML = '<option value=\"\">— ไม่มีสังกัด —</option>';
+    return;
+  }
+
+  const area = document.getElementById('area').value;
+  const prov = document.getElementById('prov').value;
+
+  if (!area || !prov) {
+    hierSel.innerHTML = '<option value=\"\">— เลือกพื้นที่/จังหวัดก่อน —</option>';
+    return;
+  }
+
+  try {
+    const r = await fetch(
+      API_URL + '?action=getOffices'
+      + '&area_code=' + area
+      + '&prov_code=' + prov
+    );
+    const list = await r.json();
+
+    hierSel.innerHTML = '<option value=\"\">— เลือกสำนักงานต้นสังกัด —</option>';
+
+    list.forEach(o => {
+      const opt = document.createElement('option');
+      opt.value = o.iden;
+      opt.text = o.name;
+      hierSel.appendChild(opt);
+    });
+
+    hierSel.disabled = false;
+  } catch (e) {
+    console.error('load hier error', e);
+    hierSel.innerHTML = '<option value=\"\">— โหลดข้อมูลไม่สำเร็จ —</option>';
+  }
+}
   
 </script>
 </body>
 </html>
+
 
