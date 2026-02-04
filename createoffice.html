@@ -137,7 +137,7 @@
 </div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbwYo97WW15ZYbbMe7d0-1Ba2N3suVibyxc0Z64HJBBaXGBniXdzBGCgbqazNnXdnhML/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzcYswgN84ikLt1LRAQMSc6VDQ0tSEYb-jtgxyDGRXdjkSAC8E6VXV1gKz4ZWhPKTL0/exec';
 
 async function loadAreaMaster() {
   const overlay = document.getElementById('loadingOverlay');
@@ -214,6 +214,81 @@ document.addEventListener('DOMContentLoaded', loadAreaMaster);
   document.getElementById('viewAddress').innerText = address || '—';
 }
 
+let AREA_DATA = [];
+
+function initAreaDropdowns(data) {
+  console.log('AREA MASTER LOADED:', data.length);
+
+  AREA_DATA = data;
+
+  const areaSel = document.getElementById('area');
+  areaSel.innerHTML = '<option value="">— เลือกพื้นที่ —</option>';
+
+  const seen = {};
+
+  data.forEach(r => {
+    if (!seen[r.area_code]) {
+      seen[r.area_code] = true;
+      const opt = document.createElement('option');
+      opt.value = r.area_code;
+      opt.text = r.area_thai || r.area_code;
+      areaSel.appendChild(opt);
+    }
+  });
+}
+
+function filterDropdown(level) {
+  const area = document.getElementById('area');
+  const prov = document.getElementById('prov');
+  const dist = document.getElementById('dist');
+  const subd = document.getElementById('subd');
+
+  if (level === 'prov') {
+    prov.innerHTML = '<option value="">— เลือกจังหวัด —</option>';
+    dist.innerHTML = '<option value="">— เลือกอำเภอ —</option>';
+    subd.innerHTML = '<option value="">— เลือกตำบล —</option>';
+    prov.disabled = false;
+    dist.disabled = true;
+    subd.disabled = true;
+
+    const seen = {};
+    AREA_DATA.forEach(r => {
+      if (r.area_code === area.value && !seen[r.prov_code]) {
+        seen[r.prov_code] = true;
+        prov.add(new Option(r.prov_thai, r.prov_code));
+      }
+    });
+  }
+
+  if (level === 'dist') {
+    dist.innerHTML = '<option value="">— เลือกอำเภอ —</option>';
+    subd.innerHTML = '<option value="">— เลือกตำบล —</option>';
+    dist.disabled = false;
+    subd.disabled = true;
+
+    const seen = {};
+    AREA_DATA.forEach(r => {
+      if (r.prov_code === prov.value && !seen[r.dist_code]) {
+        seen[r.dist_code] = true;
+        dist.add(new Option(r.dist_thai, r.dist_code));
+      }
+    });
+  }
+
+  if (level === 'subd') {
+    subd.innerHTML = '<option value="">— เลือกตำบล —</option>';
+    subd.disabled = false;
+
+    AREA_DATA.forEach(r => {
+      if (r.dist_code === dist.value) {
+        subd.add(new Option(r.subd_thai, r.subd_code));
+      }
+    });
+  }
+
+  updatePreview();
+}
+  
 async function updateHierDropdown() {
   const size = document.getElementById('branSize').value;
   const hierSel = document.getElementById('branHier');
@@ -262,5 +337,6 @@ async function updateHierDropdown() {
 </script>
 </body>
 </html>
+
 
 
