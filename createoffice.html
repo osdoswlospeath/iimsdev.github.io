@@ -14,13 +14,13 @@
 <!-- Loading Overlay -->
 <div id="loadingOverlay">
   <div class="spinner"></div>
-  <div class="loading-text">กำลังโหลดข้อมูลพื้นที่...</div>
+  <div class="loading-text">กำลังดำเนินการ...</div>
 </div>
 
 <div class="container">
   <div class="card">
     <h2>สร้างรหัสสำนักงาน</h2>
-    <p class="notice">ระบุชื่อและที่ตั้งสำนักงาน ระบบจะสร้างข้อมูลรหัสให้อัตโนมัติ</p>
+    <p class="notice">กรุณาระบุข้อมูลให้ครบถ้วน</p>
 
     <!-- FORM เดียว ครอบทุก input (ไม่ซ้ำ ID) -->
     <form id="officeForm"
@@ -357,13 +357,14 @@ async function updateHierDropdown() {
     hierSel.disabled = false;
   } catch (e) {
     console.error('load hier error', e);
-    hierSel.innerHTML = '<option value=\"\">— โหลดข้อมูลไม่สำเร็จ —</option>';
+    hierSel.innerHTML = '<option value=\"\">— ข้อมูลไม่ครบถ้วน —</option>';
   }
 }
   
 </script>
 </body>
 </html>
+
 
 
 
